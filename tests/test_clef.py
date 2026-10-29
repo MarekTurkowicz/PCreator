@@ -27,6 +27,24 @@ def test_missing_fields_use_model_defaults():
 
 
 @pytest.mark.parametrize(
+    "level", ["Verbose", "Debug", "Information", "Warning", "Error", "Fatal"]
+)
+@pytest.mark.parametrize("spelling", [str.lower, str.upper, str.title])
+def test_serilog_levels_are_normalized(level, spelling):
+    event = parse_line(json.dumps({"@l": spelling(level)}))
+
+    assert event.level == level
+
+
+@pytest.mark.parametrize(
+    "level", ["unknown", "Info", "Warn", "", " Error ", None, 123, True, [], {}]
+)
+def test_unknown_or_invalid_levels_are_rejected(level):
+    with pytest.raises(ValueError, match="CLEF level"):
+        parse_line(json.dumps({"@l": level}))
+
+
+@pytest.mark.parametrize(
     "timestamp",
     [
         "2026-10-29T12:34:56.123456Z",
