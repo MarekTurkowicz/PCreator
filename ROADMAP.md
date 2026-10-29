@@ -6,7 +6,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 
 - [x] 1. Utwórz szkielet src/loglens, konfigurację dev i dokumentację; dodaj test importu i wersji.
 - [x] 2. Dodaj model zdarzenia logu; przetestuj wartości domyślne.
-- [ ] 3. Odczytaj pola CLEF z linii JSON; przetestuj próbkę w samples/.
+- [x] 3. Odczytaj pola CLEF z linii JSON; przetestuj próbkę w samples/.
 - [ ] 4. Normalizuj znaczniki czasu do UTC; przetestuj strefy i błędne daty.
 - [ ] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
 - [ ] 6. Zachowuj kontekst i wyjątki CLEF; przetestuj zagnieżdżone właściwości.
