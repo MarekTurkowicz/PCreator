@@ -26,6 +26,40 @@ def test_missing_fields_use_model_defaults():
     assert parse_line("{}") == LogEvent()
 
 
+@pytest.mark.parametrize(
+    "timestamp",
+    [
+        "2026-10-29T12:34:56.123456Z",
+        "2026-10-29T14:34:56.123456+02:00",
+        "2026-10-29T07:04:56.123456-05:30",
+        "2026-10-29T12:34:56.123456",
+    ],
+)
+def test_timestamps_are_normalized_to_utc(timestamp):
+    event = parse_line(json.dumps({"@t": timestamp}))
+
+    assert event.timestamp == datetime(2026, 10, 29, 12, 34, 56, 123456, tzinfo=UTC)
+    assert event.timestamp.tzinfo is UTC
+
+
+def test_utc_conversion_crosses_date_boundary():
+    event = parse_line('{"@t":"2026-01-01T00:30:00+02:00"}')
+
+    assert event.timestamp == datetime(2025, 12, 31, 22, 30, tzinfo=UTC)
+
+
+@pytest.mark.parametrize(
+    "timestamp", ["", "not-a-date", "2026-02-30T12:00:00Z", 123, True, [], {}]
+)
+def test_invalid_timestamps_are_rejected(timestamp):
+    with pytest.raises(ValueError):
+        parse_line(json.dumps({"@t": timestamp}))
+
+
+def test_null_timestamp_remains_unset():
+    assert parse_line('{"@t":null}').timestamp is None
+
+
 def test_rendered_message_does_not_require_template():
     event = parse_line('{"@m":"Application started"}')
 
