@@ -8,7 +8,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 2. Dodaj model zdarzenia logu; przetestuj wartości domyślne.
 - [x] 3. Odczytaj pola CLEF z linii JSON; przetestuj próbkę w samples/.
 - [x] 4. Normalizuj znaczniki czasu do UTC; przetestuj strefy i błędne daty.
-- [ ] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
+- [x] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
 - [ ] 6. Zachowuj kontekst i wyjątki CLEF; przetestuj zagnieżdżone właściwości.
 - [ ] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
 - [ ] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.

@@ -5,12 +5,27 @@ from datetime import UTC, datetime
 
 from loglens.models import LogEvent
 
+_SERILOG_LEVELS = {
+    level.lower(): level
+    for level in ("Verbose", "Debug", "Information", "Warning", "Error", "Fatal")
+}
+
+
+def _normalize_level(value: object) -> str:
+    """Return the canonical Serilog name or reject an unsupported level."""
+    if isinstance(value, str):
+        level = _SERILOG_LEVELS.get(value.lower())
+        if level is not None:
+            return level
+    raise ValueError("CLEF level must be a standard Serilog level")
+
 
 def parse_line(line: str) -> LogEvent:
     """Read a JSON object into an event, raising on malformed input.
 
     Timestamps are converted to UTC; timestamps without an offset assume UTC.
-    Invalid timestamps raise ValueError. Levels retain their spelling.
+    Levels are matched case-insensitively to canonical Serilog names.
+    Invalid timestamps and unsupported levels raise ValueError.
     Missing fields use the event model's defaults.
     """
     data = json.loads(line)
@@ -28,7 +43,7 @@ def parse_line(line: str) -> LogEvent:
 
     return LogEvent(
         timestamp=timestamp,
-        level=data.get("@l", "Information"),
+        level=_normalize_level(data.get("@l", "Information")),
         message_template=data.get("@mt", ""),
         message=data.get("@m"),
     )
