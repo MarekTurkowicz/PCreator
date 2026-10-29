@@ -74,7 +74,14 @@ jobs:
           mkdir -p "$CODEX_HOME" && chmod 700 "$CODEX_HOME"
           printf '%s' "$CODEX_AUTH_JSON" > "$CODEX_HOME/auth.json"
           chmod 600 "$CODEX_HOME/auth.json"
-          printf 'cli_auth_credentials_store = "file"\n' > "$CODEX_HOME/config.toml"
+          # Oszczędzanie tokenów: krótkie odpowiedzi, bez web search, przycięte wyjścia narzędzi
+          cat > "$CODEX_HOME/config.toml" <<'EOF'
+          cli_auth_credentials_store = "file"
+          model_verbosity = "low"
+          web_search = "disabled"
+          tool_output_token_limit = 6000
+          EOF
+          sed -i 's/^ *//' "$CODEX_HOME/config.toml"
           echo "CODEX_HOME=$CODEX_HOME" >> "$GITHUB_ENV"
 
       - name: Codex — jeden krok + testy

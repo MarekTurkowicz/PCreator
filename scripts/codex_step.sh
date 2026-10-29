@@ -38,7 +38,7 @@ echo "::endgroup::"
 if ! check > .codex/out/check.log 2>&1; then
   echo "Testy/lint nie przeszły — jedna próba poprawki."
   tail -n 40 .codex/out/check.log
-  codex_run "Lint lub testy nie przechodzą po ostatniej zmianie. Napraw minimalnie, bez nowych funkcji. Końcówka logu:
+  codex_run "Lint lub testy nie przechodzą po ostatniej zmianie. Użyj skilla fix-failing-checks. Napraw minimalnie, bez nowych funkcji. Końcówka logu:
 $(tail -n 60 .codex/out/check.log)"
   check > .codex/out/check.log 2>&1 || { cat .codex/out/check.log; exit 1; }
 fi

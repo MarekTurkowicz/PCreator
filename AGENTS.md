@@ -6,6 +6,9 @@ Projekt opisany w `TOPIC.md`. Plan pracy: `ROADMAP.md`. Mapa kodu: `docs/ARCHITE
 - Najpierw czytaj tylko `ROADMAP.md` i `docs/ARCHITECTURE.md`.
 - Otwieraj wyłącznie pliki potrzebne do bieżącego kroku. Nie przeglądaj całego repo.
 - Nie wypisuj długich podsumowań — końcowa odpowiedź max 8 linii.
+- Szukaj przez `rg`, czytaj fragmenty (`sed -n 'a,bp'`), ucinaj długie wyjścia (`| tail -n 30`).
+- Skille w `.agents/skills/`: `roadmap-step` (każdy krok), `fix-failing-checks`,
+  `dotnet-serilog`, `duckdb-logs`. Używaj ich, gdy pasują.
 
 ## Jeden krok = jedna mała, działająca zmiana
 - Realizuj DOKŁADNIE jeden krok z ROADMAP.md. Nic ponad to, bez refaktorów „przy okazji”.
@@ -24,7 +27,7 @@ Projekt opisany w `TOPIC.md`. Plan pracy: `ROADMAP.md`. Mapa kodu: `docs/ARCHITE
   uruchomi skrypt poza sandboxem. Jeśli `dotnet build` u Ciebie nie przejdzie
   z braku sieci, nie obchodź tego; pilnuj poprawności kodu. Nie commituj `bin/`, `obj/`.
 - SQL wykonuj przez Pythona (DuckDB).
-- Nie zmieniaj `.github/`, `scripts/`, `AGENTS.md`, `.codex/prompts/`.
+- Nie zmieniaj `.github/`, `scripts/`, `AGENTS.md`, `.codex/prompts/`, `.agents/`.
 
 ## Zakończenie
 - Uruchom `ruff check . --fix` i `pytest -q`; jeśli istnieje `dotnet/LogLens.sln`,
