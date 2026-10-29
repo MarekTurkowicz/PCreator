@@ -33,4 +33,4 @@ Projekt opisany w `TOPIC.md`. Plan pracy: `ROADMAP.md`. Mapa kodu: `docs/ARCHITE
 - Uruchom `ruff check . --fix` i `pytest -q`; jeśli istnieje `dotnet/LogLens.sln`,
   także `dotnet test dotnet/LogLens.sln`. Napraw błędy.
 - Zapisz jednolinijkowy komunikat commita (Conventional Commits, po angielsku,
-  max 72 znaki) do `.codex/out/commit_msg.txt`.
+  max 72 znaki) do `.commit_msg.txt`.

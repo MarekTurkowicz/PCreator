@@ -13,7 +13,7 @@ description: Wykonanie jednego kroku z ROADMAP.md metodą test-first, z minimaln
 5. Uruchamiaj tylko testy, których dotyczy zmiana: `pytest -q tests/test_<moduł>.py -x`.
    Pełne `pytest -q` dopiero raz, na końcu.
 6. Zaznacz krok `- [x]`, dopisz jedną linię w `docs/ARCHITECTURE.md`,
-   zapisz commit message do `.codex/out/commit_msg.txt`.
+   zapisz commit message do `.commit_msg.txt`.
 
 ## Oszczędzanie kontekstu
 - Szukaj `rg -n 'wzorzec' src/`, czytaj fragmenty `sed -n '40,90p' plik`.

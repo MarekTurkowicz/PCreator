@@ -3,7 +3,7 @@
 # Wymaga: GH_TOKEN (fine-grained PAT), GIT_AUTHOR_NAME, GIT_AUTHOR_EMAIL, GITHUB_REPOSITORY.
 set -euo pipefail
 
-MSG="$(head -n1 .codex/out/commit_msg.txt 2>/dev/null | cut -c1-72 || true)"
+MSG="$(head -n1 .commit_msg.txt 2>/dev/null | cut -c1-72 || true)"; rm -f .commit_msg.txt
 [[ -n "$MSG" ]] || MSG="feat: next roadmap step"
 BR="codex/$(date -u +%Y%m%d-%H%M%S)"
 
