@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalacja
+        run: |
+          pip install -q pytest ruff
+          if [ -f pyproject.toml ]; then pip install -q -e ".[dev]" || pip install -q -e .; fi
+      - name: Lint
+        run: ruff check .
+      - name: Testy
+        run: pytest -q || [ $? -eq 5 ]   # 5 = brak testów
+
+  dotnet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Build i testy .NET
+        run: |
+          if [ -f dotnet/LogLens.sln ]; then
+            dotnet test dotnet/LogLens.sln --nologo
+          else
+            echo "Brak dotnet/LogLens.sln, pomijam."
+          fi
