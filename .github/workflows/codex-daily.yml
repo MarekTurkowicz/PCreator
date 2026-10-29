@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: false   # Codex nie dostaje tokenu do gita
@@ -37,17 +37,17 @@ jobs:
         run: python3 scripts/daily_plan.py
 
       - if: steps.plan.outputs.run == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - if: steps.plan.outputs.run == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "22"
 
       - if: steps.plan.outputs.run == 'true'
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
 
@@ -56,6 +56,14 @@ jobs:
         run: |
           npm install -g @openai/codex
           pip install -q pytest ruff
+
+      # Ubuntu 24+/26 blokuje nieuprzywilejowane user namespaces (AppArmor),
+      # przez co sandbox Codexa (bubblewrap) nie startuje. Dotyczy tylko jednorazowego runnera.
+      - name: Sandbox Codexa (bubblewrap)
+        if: steps.plan.outputs.run == 'true'
+        run: |
+          sudo apt-get install -y -qq bubblewrap
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
 
       - name: Auth Codexa (subskrypcja ChatGPT)
         if: steps.plan.outputs.run == 'true'
