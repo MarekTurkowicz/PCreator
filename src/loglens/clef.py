@@ -27,6 +27,8 @@ def parse_line(line: str) -> LogEvent:
     Levels are matched case-insensitively to canonical Serilog names.
     Invalid timestamps and unsupported levels raise ValueError.
     Missing fields use the event model's defaults.
+    Exceptions and nested context values are preserved without conversion.
+    CLEF metadata is excluded from context; escaped @@ names lose one @.
     """
     data = json.loads(line)
     if not isinstance(data, dict):
@@ -46,4 +48,10 @@ def parse_line(line: str) -> LogEvent:
         level=_normalize_level(data.get("@l", "Information")),
         message_template=data.get("@mt", ""),
         message=data.get("@m"),
+        exception=data.get("@x"),
+        properties={
+            (key[1:] if key.startswith("@@") else key): value
+            for key, value in data.items()
+            if not key.startswith("@") or key.startswith("@@")
+        },
     )

@@ -26,6 +26,45 @@ def test_missing_fields_use_model_defaults():
     assert parse_line("{}") == LogEvent()
 
 
+def test_context_preserves_nested_properties_and_json_types():
+    properties = {
+        "Request": {"Headers": {"Accept": ["application/json"]}, "Id": 42},
+        "Items": [{"Name": "żółć", "Enabled": True}, None],
+        "Duration": 12.5,
+        "Empty": {},
+    }
+
+    event = parse_line(json.dumps({"@mt": "Request {Request}", **properties}))
+
+    assert event.properties == properties
+
+
+def test_exception_is_preserved_verbatim_and_metadata_is_not_context():
+    exception = "System.InvalidOperationException: Failed\n   at App.Run()\r\n"
+    event = parse_line(json.dumps({
+        "@t": "2026-10-29T12:34:56Z",
+        "@l": "Error",
+        "@mt": "Failed {RequestId}",
+        "@m": "Failed req-1",
+        "@x": exception,
+        "@i": "event-id",
+        "@r": ["req-1"],
+        "@tr": "trace-id",
+        "@sp": "span-id",
+        "RequestId": "req-1",
+    }))
+
+    assert event.exception == exception
+    assert event.properties == {"RequestId": "req-1"}
+
+
+def test_escaped_clef_property_names_are_unescaped():
+    event = parse_line('{"@@name":{"value":1},"@@x":"context","@x":"error"}')
+
+    assert event.properties == {"@name": {"value": 1}, "@x": "context"}
+    assert event.exception == "error"
+
+
 @pytest.mark.parametrize(
     "level", ["Verbose", "Debug", "Information", "Warning", "Error", "Fatal"]
 )
