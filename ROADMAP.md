@@ -10,7 +10,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 4. Normalizuj znaczniki czasu do UTC; przetestuj strefy i błędne daty.
 - [x] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
 - [x] 6. Zachowuj kontekst i wyjątki CLEF; przetestuj zagnieżdżone właściwości.
-- [ ] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
+- [x] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
 - [ ] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
 - [ ] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
 - [ ] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
