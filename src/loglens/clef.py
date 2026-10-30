@@ -1,9 +1,27 @@
-"""Parse the core fields of a single CLEF JSON event."""
+"""Parse CLEF JSON events from individual lines or a file stream."""
 
 import json
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 
 from loglens.models import LogEvent
+
+
+def read_file(path: str | Path) -> Iterator[LogEvent]:
+    """Yield events lazily with their source path and one-based line number.
+
+    The UTF-8 file is opened on the first iteration and closed on exhaustion,
+    an error, or explicit iterator.close(). Invalid lines propagate the parser's
+    exception. Call close() when stopping iteration early to release the file.
+    """
+    with open(path, encoding="utf-8") as stream:
+        for line_number, line in enumerate(stream, start=1):
+            event = parse_line(line)
+            event.source = str(path)
+            event.line_number = line_number
+            yield event
+
 
 _SERILOG_LEVELS = {
     level.lower(): level

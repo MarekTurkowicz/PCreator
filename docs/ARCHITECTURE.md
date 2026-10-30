@@ -6,6 +6,7 @@
 - `src/loglens/clef.py::parse_line` → normalizuje czas do UTC (także daty bez strefy), zachowuje brak czasu i odrzuca błędne daty; testy obejmują offsety i zmianę dnia.
 - `src/loglens/clef.py::_normalize_level` → normalizuje sześć poziomów Serilog bez rozróżniania wielkości liter, domyślnie używa `Information` przy braku `@l` i odrzuca nieznane wartości; testy w `tests/test_clef.py`.
 - `src/loglens/clef.py::parse_line` → zachowuje wyjątek `@x` i zagnieżdżony kontekst, pomija metadane CLEF i odkodowuje nazwy `@@`; testy w `tests/test_clef.py`.
+- `src/loglens/clef.py::read_file` → czyta plik UTF-8 leniwie, przypisując zdarzeniom ścieżkę źródła i numer linii od 1; testy w `tests/test_reader.py`.
 - `pyproject.toml` → metadane pakietu w `src/`, extra `dev` oraz konfiguracja pytest i ruff.
 - `tests/test_smoke.py` → test importu pakietu i zgodności wersji z metadanymi.
 - `README.md` → opis projektu oraz instrukcje instalacji, uruchomienia i sprawdzeń.
