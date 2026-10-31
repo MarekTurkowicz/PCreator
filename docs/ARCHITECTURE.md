@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/clef.py::read_files` → leniwie odczytuje kolejne pliki w kolejności wejścia, zachowując źródła i numery linii oraz tryb obsługi błędów; testy dwóch próbek i przypadków brzegowych w `tests/test_reader.py`.
 - `src/loglens/discovery.py::find_log_files` → zwraca posortowane według nazw pliki `.clef` i `.json` bez podkatalogów, ignorując wielkość liter rozszerzeń; testy w `tests/test_discovery.py` obejmują też puste katalogi i błędne ścieżki.
 - `src/loglens/__init__.py` → publiczny pakiet `loglens` i jego wersja.
 - `src/loglens/models.py` → model `LogEvent` z wartościami domyślnymi, kontekstem i lokalizacją źródłową, sprawdzany w `tests/test_models.py`.

@@ -13,7 +13,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
 - [x] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
 - [x] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
-- [ ] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
+- [x] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
 - [ ] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
 - [ ] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
 - [ ] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.

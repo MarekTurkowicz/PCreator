@@ -2,13 +2,26 @@
 
 import json
 import logging
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 
 from loglens.models import LogEvent
 
 logger = logging.getLogger(__name__)
+
+
+def read_files(
+    paths: Iterable[str | Path], *, strict: bool = True
+) -> Iterator[LogEvent]:
+    """Yield events from each path in input order, preserving source locations.
+
+    Paths are consumed lazily and only one file is opened at a time. Parsing
+    and file errors follow read_file's rules. Close the iterator when stopping
+    early to release the current file.
+    """
+    for path in paths:
+        yield from read_file(path, strict=strict)
 
 
 def read_file(path: str | Path, *, strict: bool = True) -> Iterator[LogEvent]:

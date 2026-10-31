@@ -4,7 +4,57 @@ import json
 
 import pytest
 
-from loglens.clef import read_file
+from loglens.clef import read_file, read_files
+
+
+def test_read_files_preserves_order_and_source_locations(tmp_path):
+    first = tmp_path / "first.clef"
+    second = tmp_path / "second.json"
+    first.write_text('{"@mt":"First"}\n{"@mt":"Second"}\n', encoding="utf-8")
+    second.write_text('{"@mt":"Third","RequestId":42}\n', encoding="utf-8")
+
+    events = list(read_files([str(second), first]))
+
+    assert [event.message_template for event in events] == ["Third", "First", "Second"]
+    assert [event.source for event in events] == [str(second), str(first), str(first)]
+    assert [event.line_number for event in events] == [1, 1, 2]
+    assert events[0].properties == {"RequestId": 42}
+
+
+def test_read_files_is_lazy_and_accepts_iterable(tmp_path):
+    first = tmp_path / "first.clef"
+    second = tmp_path / "second.clef"
+    events = read_files(path for path in (first, second))
+    first.write_text('{"@mt":"First"}\n', encoding="utf-8")
+
+    assert next(events).message_template == "First"
+    second.write_text('{"@mt":"Second"}\n', encoding="utf-8")
+    assert next(events).source == str(second)
+    assert list(events) == []
+
+
+def test_read_files_empty_input():
+    assert list(read_files([])) == []
+
+
+def test_read_files_forwards_strict_mode(tmp_path, caplog):
+    first = tmp_path / "mixed.clef"
+    second = tmp_path / "valid.clef"
+    first.write_text('invalid\n{"@mt":"First"}\n', encoding="utf-8")
+    second.write_text('{"@mt":"Second"}\n', encoding="utf-8")
+
+    with pytest.raises(json.JSONDecodeError):
+        list(read_files([first, second]))
+    events = list(read_files([first, second], strict=False))
+
+    assert [event.message_template for event in events] == ["First", "Second"]
+    assert [event.line_number for event in events] == [2, 1]
+    assert f"{first}:1" in caplog.text
+
+
+def test_read_files_propagates_missing_file_in_tolerant_mode(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        list(read_files([tmp_path / "missing.clef"], strict=False))
 
 
 @pytest.mark.parametrize("use_string", [False, True])
