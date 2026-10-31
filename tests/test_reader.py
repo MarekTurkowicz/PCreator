@@ -42,3 +42,43 @@ def test_read_file_empty_file(tmp_path):
     path.write_text("", encoding="utf-8")
 
     assert list(read_file(path)) == []
+
+
+@pytest.mark.parametrize(
+    "invalid_line",
+    ["invalid json", "[]", '{"@t":"bad date"}', '{"@l":"unknown"}', ""],
+)
+def test_read_file_tolerates_invalid_lines_with_diagnostics(
+    tmp_path, caplog, invalid_line
+):
+    path = tmp_path / "mixed.clef"
+    path.write_text(
+        '{"@mt":"First"}\n' + invalid_line + '\n{"@mt":"Last"}\n',
+        encoding="utf-8",
+    )
+
+    events = list(read_file(path, strict=False))
+
+    assert [event.message_template for event in events] == ["First", "Last"]
+    assert [event.line_number for event in events] == [1, 3]
+    assert all(event.source == str(path) for event in events)
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.levelname == "WARNING"
+    assert f"{path}:2" in record.getMessage()
+    with pytest.raises(ValueError) as error:
+        list(read_file(path, strict=True))
+    assert str(error.value) in record.getMessage()
+
+
+def test_read_file_tolerates_multiple_invalid_lines(tmp_path, caplog):
+    path = tmp_path / "invalid.clef"
+    path.write_text("bad\n[]\n", encoding="utf-8")
+
+    assert list(read_file(path, strict=False)) == []
+    assert len(caplog.records) == 2
+
+
+def test_read_file_tolerant_mode_propagates_file_errors(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        list(read_file(tmp_path / "missing.clef", strict=False))

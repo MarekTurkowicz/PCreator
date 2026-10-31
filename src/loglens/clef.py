@@ -1,23 +1,34 @@
 """Parse CLEF JSON events from individual lines or a file stream."""
 
 import json
+import logging
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 
 from loglens.models import LogEvent
 
+logger = logging.getLogger(__name__)
 
-def read_file(path: str | Path) -> Iterator[LogEvent]:
+
+def read_file(path: str | Path, *, strict: bool = True) -> Iterator[LogEvent]:
     """Yield events lazily with their source path and one-based line number.
 
     The UTF-8 file is opened on the first iteration and closed on exhaustion,
-    an error, or explicit iterator.close(). Invalid lines propagate the parser's
-    exception. Call close() when stopping iteration early to release the file.
+    an error, or explicit iterator.close(). By default invalid lines propagate
+    the parser's exception. With strict=False they are skipped with a warning
+    containing the source path, line number and reason. File errors propagate
+    in either mode. Call close() when stopping iteration early to release the file.
     """
     with open(path, encoding="utf-8") as stream:
         for line_number, line in enumerate(stream, start=1):
-            event = parse_line(line)
+            try:
+                event = parse_line(line)
+            except ValueError as error:
+                if strict:
+                    raise
+                logger.warning("%s:%d: %s", path, line_number, error)
+                continue
             event.source = str(path)
             event.line_number = line_number
             yield event
