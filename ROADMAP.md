@@ -11,7 +11,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
 - [x] 6. Zachowuj kontekst i wyjątki CLEF; przetestuj zagnieżdżone właściwości.
 - [x] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
-- [ ] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
+- [x] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
 - [ ] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
 - [ ] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
 - [ ] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
