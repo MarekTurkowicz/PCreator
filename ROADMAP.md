@@ -14,7 +14,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
 - [x] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
 - [x] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
-- [ ] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
+- [x] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
 - [ ] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
 - [ ] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
 - [ ] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
