@@ -15,7 +15,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
 - [x] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
 - [x] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
-- [ ] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
+- [x] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
 - [ ] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
 - [ ] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
 - [ ] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
