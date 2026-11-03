@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::create_schema` → tworzy idempotentnie tabelę zdarzeń DuckDB z `sql/schema.sql`, pakowanym jako zasób; typy kolumn i pustą bazę sprawdza `tests/test_database.py`.
 - `src/loglens/cli.py::inspect` → strumieniowo liczy poprawne i błędne zdarzenia w plikach katalogu; testy w `tests/test_cli.py` obejmują mieszane dane, pusty katalog oraz błędy ścieżki i kodowania.
 - `src/loglens/cli.py` → aplikacja Typer z poleceniem `loglens version` i punktem wejścia w `pyproject.toml`; wyjście i kod zakończenia sprawdza `tests/test_cli.py`.
 - `src/loglens/clef.py::read_files` → leniwie odczytuje kolejne pliki w kolejności wejścia, zachowując źródła i numery linii oraz tryb obsługi błędów; testy dwóch próbek i przypadków brzegowych w `tests/test_reader.py`.
