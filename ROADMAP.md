@@ -18,7 +18,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
 - [x] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
 - [x] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
-- [ ] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
+- [x] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
 - [ ] 16. Dodaj CLI ingest zapisujące katalog logów do bazy; przetestuj wynik na próbkach.
 - [ ] 17. Filtruj zdarzenia od i do daty bezwzględnej; przetestuj granice przedziału.
 - [ ] 18. Obsłuż względny filtr since, np. 2h; przetestuj jednostki i kontrolowany zegar.
