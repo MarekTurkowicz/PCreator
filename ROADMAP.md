@@ -11,14 +11,14 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 5. Normalizuj poziomy Serilog z domyślnym Information; przetestuj nieznane poziomy.
 - [x] 6. Zachowuj kontekst i wyjątki CLEF; przetestuj zagnieżdżone właściwości.
 - [x] 7. Czytaj plik strumieniowo z numerami linii; przetestuj leniwe pobieranie zdarzeń.
-- [ ] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
-- [ ] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
-- [ ] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
-- [ ] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
-- [ ] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
-- [ ] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
-- [ ] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
-- [ ] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
+- [x] 8. Pomijaj błędne linie z diagnostyką w trybie tolerancyjnym; przetestuj także tryb ścisły.
+- [x] 9. Wyszukuj pliki .clef i .json w katalogu; przetestuj kolejność i rozszerzenia.
+- [x] 10. Czytaj wiele plików z zachowaniem źródła zdarzenia; przetestuj dwie próbki.
+- [x] 11. Dodaj szkielet CLI Typer z poleceniem version; przetestuj wyjście i kod zakończenia.
+- [x] 12. Dodaj CLI inspect liczące poprawne i błędne zdarzenia; przetestuj mały katalog.
+- [x] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
+- [x] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
+- [x] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
 - [ ] 16. Dodaj CLI ingest zapisujące katalog logów do bazy; przetestuj wynik na próbkach.
 - [ ] 17. Filtruj zdarzenia od i do daty bezwzględnej; przetestuj granice przedziału.
 - [ ] 18. Obsłuż względny filtr since, np. 2h; przetestuj jednostki i kontrolowany zegar.
