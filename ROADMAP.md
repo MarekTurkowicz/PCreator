@@ -19,7 +19,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 13. Utwórz schemat zdarzeń w DuckDB; przetestuj typy kolumn i pustą bazę.
 - [x] 14. Zapisuj zdarzenia do DuckDB partiami; przetestuj dane i granice partii.
 - [x] 15. Dodaj trwałą bazę DuckDB i ponowne otwarcie; przetestuj zachowanie danych.
-- [ ] 16. Dodaj CLI ingest zapisujące katalog logów do bazy; przetestuj wynik na próbkach.
+- [x] 16. Dodaj CLI ingest zapisujące katalog logów do bazy; przetestuj wynik na próbkach.
 - [ ] 17. Filtruj zdarzenia od i do daty bezwzględnej; przetestuj granice przedziału.
 - [ ] 18. Obsłuż względny filtr since, np. 2h; przetestuj jednostki i kontrolowany zegar.
 - [ ] 19. Filtruj po minimalnym poziomie logowania; przetestuj kolejność poziomów.
