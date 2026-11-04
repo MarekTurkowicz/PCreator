@@ -3,10 +3,27 @@
 import json
 from collections.abc import Iterable
 from importlib.resources import files
+from pathlib import Path
 
 import duckdb
 
 from loglens.models import LogEvent
+
+
+def open_database(path: str | Path) -> duckdb.DuckDBPyConnection:
+    """Open or create a persistent database and initialize its event schema.
+
+    The caller owns the returned connection and must close it, for example by
+    using it as a context manager. Existing events are preserved on reopening.
+    The parent directory must already exist.
+    """
+    connection = duckdb.connect(str(path))
+    try:
+        create_schema(connection)
+    except Exception:
+        connection.close()
+        raise
+    return connection
 
 
 def create_schema(connection: duckdb.DuckDBPyConnection) -> None:

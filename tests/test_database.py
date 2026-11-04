@@ -7,8 +7,40 @@ import pytest
 
 duckdb = pytest.importorskip("duckdb")
 
-from loglens.database import create_schema, insert_events  # noqa: E402
+from loglens.database import create_schema, insert_events, open_database  # noqa: E402
 from loglens.models import LogEvent  # noqa: E402
+
+
+@pytest.mark.parametrize("use_string_path", [False, True])
+def test_open_database_preserves_events_across_reopens(tmp_path, use_string_path):
+    path = tmp_path / "logs.duckdb"
+    database = str(path) if use_string_path else path
+    properties = {"user": {"name": "Łukasz"}, "ok": True}
+    event = LogEvent(
+        level="Error",
+        message_template="Failed {user}",
+        message="Failed user",
+        exception="Error: failure\n  at Handler()",
+        properties=properties,
+        source="input.clef",
+        line_number=7,
+    )
+
+    with open_database(database) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM events").fetchone() == (0,)
+        assert insert_events(connection, [event]) == 1
+
+    assert path.is_file()
+    with open_database(database) as connection:
+        row = connection.execute("SELECT * FROM events").fetchone()
+        assert row[:5] == (None, "Error", event.message_template, event.message,
+                           event.exception)
+        assert json.loads(row[5]) == properties
+        assert row[6:] == ("input.clef", 7)
+        assert insert_events(connection, [LogEvent()]) == 1
+
+    with open_database(database) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM events").fetchone() == (2,)
 
 
 def test_schema_has_event_columns_and_types():

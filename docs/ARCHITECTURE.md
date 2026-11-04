@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::open_database` → otwiera lub tworzy bazę plikową z idempotentnym schematem; zachowanie danych i dopisywanie po ponownym otwarciu dla ścieżek `str` i `Path` sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::insert_events` → zapisuje leniwy strumień zdarzeń partiami przez parametryzowany `sql/insert_events.sql`, zachowując JSON i metadane; dane, granice partii i walidację rozmiaru sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::create_schema` → tworzy idempotentnie tabelę zdarzeń DuckDB z `sql/schema.sql`, pakowanym jako zasób; typy kolumn i pustą bazę sprawdza `tests/test_database.py`.
 - `src/loglens/cli.py::inspect` → strumieniowo liczy poprawne i błędne zdarzenia w plikach katalogu; testy w `tests/test_cli.py` obejmują mieszane dane, pusty katalog oraz błędy ścieżki i kodowania.
