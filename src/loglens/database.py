@@ -2,6 +2,7 @@
 
 import json
 from collections.abc import Iterable
+from datetime import datetime, timezone
 from importlib.resources import files
 from pathlib import Path
 
@@ -34,6 +35,44 @@ def create_schema(connection: duckdb.DuckDBPyConnection) -> None:
     """
     schema = files("loglens").joinpath("sql/schema.sql").read_text(encoding="utf-8")
     connection.execute(schema)
+
+
+def filter_events(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    start: datetime | None = None,
+    end: datetime | None = None,
+) -> list[LogEvent]:
+    """Return events in an inclusive absolute time range, ordered by timestamp.
+
+    Either bound may be omitted. Naive bounds mean UTC, like CLEF timestamps.
+    Undated events are returned last only when neither bound is supplied.
+    The caller retains ownership of the connection.
+    """
+    if start is not None and start.tzinfo is None:
+        start = start.replace(tzinfo=timezone.utc)
+    if end is not None and end.tzinfo is None:
+        end = end.replace(tzinfo=timezone.utc)
+    if start is not None and end is not None and start > end:
+        raise ValueError("start must be before or equal to end")
+
+    query = files("loglens").joinpath("sql/filter_events.sql").read_text(
+        encoding="utf-8"
+    )
+    rows = connection.execute(query, [start, start, end, end]).fetchall()
+    return [
+        LogEvent(
+            timestamp=row[0].astimezone(timezone.utc) if row[0] is not None else None,
+            level=row[1],
+            message_template=row[2],
+            message=row[3],
+            exception=row[4],
+            properties=json.loads(row[5]),
+            source=row[6],
+            line_number=row[7],
+        )
+        for row in rows
+    ]
 
 
 def insert_events(
