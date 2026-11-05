@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::filter_events(since=...)` → wyznacza dolną granicę z dodatniego czasu w jednostkach s/m/h/d/w i podmienianego zegara UTC; jednostki, granice, strefy i walidację sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`; granice, UTC, brak dat i pustą bazę sprawdza `tests/test_database_filters.py`.
 - `src/loglens/cli.py::ingest` → polecenie `loglens ingest DIRECTORY DATABASE` zapisuje logi strumieniowo do DuckDB, pomijając błędne linie z diagnostyką; próbkę, metadane, pusty katalog i błędy sprawdza `tests/test_cli_ingest.py`.
 - `src/loglens/database.py::open_database` → otwiera lub tworzy bazę plikową z idempotentnym schematem; zachowanie danych i dopisywanie po ponownym otwarciu dla ścieżek `str` i `Path` sprawdza `tests/test_database.py`.

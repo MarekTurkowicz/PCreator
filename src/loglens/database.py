@@ -1,8 +1,9 @@
 """Store normalized log events in DuckDB."""
 
 import json
-from collections.abc import Iterable
-from datetime import datetime, timezone
+import re
+from collections.abc import Callable, Iterable
+from datetime import datetime, timedelta, timezone
 from importlib.resources import files
 from pathlib import Path
 
@@ -42,13 +43,42 @@ def filter_events(
     *,
     start: datetime | None = None,
     end: datetime | None = None,
+    since: str | None = None,
+    clock: Callable[[], datetime] | None = None,
 ) -> list[LogEvent]:
-    """Return events in an inclusive absolute time range, ordered by timestamp.
+    """Return events in an inclusive time range, ordered by timestamp.
 
     Either bound may be omitted. Naive bounds mean UTC, like CLEF timestamps.
+    Instead of start, since accepts a positive integer followed by s, m, h, d
+    or w. Its lower bound is clock() minus that duration; the default clock is
+    the current UTC time. Naive clock values also mean UTC. End is independent
+    of the clock, and defaults to no upper bound.
     Undated events are returned last only when neither bound is supplied.
     The caller retains ownership of the connection.
     """
+    if since is not None:
+        if start is not None:
+            raise ValueError("since and start cannot be used together")
+        match = re.fullmatch(r"([0-9]+)([smhdw])", since)
+        if match is None:
+            raise ValueError(
+                "since must be a positive integer with unit s, m, h, d or w"
+            )
+        try:
+            amount = int(match[1])
+            if amount <= 0:
+                raise ValueError("since must be positive")
+            seconds = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+            duration = timedelta(seconds=amount * seconds[match[2]])
+        except (ValueError, OverflowError) as error:
+            raise ValueError("since duration is invalid or out of range") from error
+        now = clock() if clock is not None else datetime.now(timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
+        try:
+            start = now.astimezone(timezone.utc) - duration
+        except OverflowError as error:
+            raise ValueError("since duration is out of range") from error
     if start is not None and start.tzinfo is None:
         start = start.replace(tzinfo=timezone.utc)
     if end is not None and end.tzinfo is None:

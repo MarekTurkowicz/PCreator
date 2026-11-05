@@ -1,4 +1,4 @@
-"""Absolute time range filters for stored events."""
+"""Absolute and relative time range filters for stored events."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -60,3 +60,63 @@ def test_empty_database():
     with duckdb.connect() as connection:
         create_schema(connection)
         assert filter_events(connection) == []
+
+
+@pytest.mark.parametrize(("since", "delta"), [
+    ("30s", timedelta(seconds=30)),
+    ("15m", timedelta(minutes=15)),
+    ("2h", timedelta(hours=2)),
+    ("3d", timedelta(days=3)),
+    ("1w", timedelta(weeks=1)),
+])
+def test_since_units_and_inclusive_boundary(since, delta):
+    now = datetime(2026, 1, 10, 12, tzinfo=timezone.utc)
+    boundary = now - delta
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        insert_events(connection, [
+            LogEvent(timestamp=boundary - timedelta(microseconds=1), message="old"),
+            LogEvent(timestamp=boundary, message="boundary"),
+            LogEvent(timestamp=now, message="now"),
+            LogEvent(message="undated"),
+        ])
+        calls = []
+
+        def clock():
+            calls.append(True)
+            return now
+
+        events = filter_events(connection, since=since, clock=clock)
+        assert [event.message for event in events] == ["boundary", "now"]
+        assert len(calls) == 1
+
+
+@pytest.mark.parametrize("now", [
+    datetime(2026, 1, 1, 3),
+    datetime(2026, 1, 1, 5, tzinfo=timezone(timedelta(hours=2))),
+])
+def test_since_normalizes_clock_and_combines_with_end(database, now):
+    events = filter_events(database, since="2h", clock=lambda: now,
+                           end=datetime(2026, 1, 1, 2))
+    assert [event.message for event in events] == ["1", "2"]
+
+
+@pytest.mark.parametrize("since", [
+    "", "0h", "-2h", "1.5h", "2", "2H", "2 h", "1h30m", "2y",
+    "9" * 30 + "w",
+])
+def test_invalid_since_is_rejected(database, since):
+    with pytest.raises(ValueError, match="since"):
+        filter_events(database, since=since)
+
+
+def test_since_and_start_are_mutually_exclusive(database):
+    with pytest.raises(ValueError, match="since.*start"):
+        filter_events(database, since="2h", start=datetime(2026, 1, 1))
+
+
+def test_since_rejects_boundary_after_end(database):
+    with pytest.raises(ValueError, match="start.*end"):
+        filter_events(database, since="1h",
+                      clock=lambda: datetime(2026, 1, 1, 3),
+                      end=datetime(2026, 1, 1, 1))
