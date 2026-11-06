@@ -1,4 +1,4 @@
-"""Absolute and relative time range filters for stored events."""
+"""Time range and minimum severity filters for stored events."""
 
 from datetime import datetime, timedelta, timezone
 
@@ -120,3 +120,48 @@ def test_since_rejects_boundary_after_end(database):
         filter_events(database, since="1h",
                       clock=lambda: datetime(2026, 1, 1, 3),
                       end=datetime(2026, 1, 1, 1))
+
+
+LEVELS = ("Verbose", "Debug", "Information", "Warning", "Error", "Fatal")
+
+
+@pytest.mark.parametrize("minimum", [None, *LEVELS, "wArNiNg"])
+def test_minimum_level_uses_serilog_severity_order(minimum):
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        # Chronological order deliberately differs from severity order.
+        events = [
+            LogEvent(timestamp=datetime(2026, 1, 1, hour, tzinfo=timezone.utc),
+                     level=level, message=level)
+            for hour, level in enumerate(reversed(LEVELS))
+        ]
+        insert_events(connection, events)
+        rank = 0 if minimum is None else LEVELS.index(minimum.capitalize())
+        expected = [event for event in events if LEVELS.index(event.level) >= rank]
+        assert filter_events(connection, min_level=minimum) == expected
+
+
+def test_minimum_level_combines_with_time_filters():
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        insert_events(connection, [
+            LogEvent(timestamp=datetime(2026, 1, 1, hour), level=level)
+            for hour, level in enumerate(["Error", "Debug", "Warning", "Fatal"])
+        ] + [LogEvent(level="Fatal")])
+        events = filter_events(connection, min_level="Warning", since="2h",
+                               clock=lambda: datetime(2026, 1, 1, 3),
+                               end=datetime(2026, 1, 1, 2))
+        assert [event.level for event in events] == ["Warning"]
+        assert len(filter_events(connection, min_level="Fatal")) == 2
+
+
+@pytest.mark.parametrize("minimum", ["", "Info", "Critical", " Error", 3])
+def test_invalid_minimum_level_is_rejected(database, minimum):
+    with pytest.raises(ValueError, match="min_level"):
+        filter_events(database, min_level=minimum)
+
+
+def test_minimum_level_on_empty_database():
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        assert filter_events(connection, min_level="Error") == []
