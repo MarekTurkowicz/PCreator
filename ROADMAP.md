@@ -22,7 +22,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 16. Dodaj CLI ingest zapisujące katalog logów do bazy; przetestuj wynik na próbkach.
 - [x] 17. Filtruj zdarzenia od i do daty bezwzględnej; przetestuj granice przedziału.
 - [x] 18. Obsłuż względny filtr since, np. 2h; przetestuj jednostki i kontrolowany zegar.
-- [ ] 19. Filtruj po minimalnym poziomie logowania; przetestuj kolejność poziomów.
+- [x] 19. Filtruj po minimalnym poziomie logowania; przetestuj kolejność poziomów.
 - [ ] 20. Filtruj po właściwości kontekstu; przetestuj brak właściwości i zgodność wartości.
 - [ ] 21. Dodaj plik SQL z licznością zdarzeń według poziomu; przetestuj agregaty w DuckDB.
 - [ ] 22. Agreguj błędy w przedziałach czasu; przetestuj granice koszyków i UTC.

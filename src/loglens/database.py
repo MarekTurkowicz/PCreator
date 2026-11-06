@@ -11,6 +11,13 @@ import duckdb
 
 from loglens.models import LogEvent
 
+_LEVEL_RANKS = {
+    level.lower(): rank
+    for rank, level in enumerate(
+        ("Verbose", "Debug", "Information", "Warning", "Error", "Fatal"), start=1
+    )
+}
+
 
 def open_database(path: str | Path) -> duckdb.DuckDBPyConnection:
     """Open or create a persistent database and initialize its event schema.
@@ -45,6 +52,7 @@ def filter_events(
     end: datetime | None = None,
     since: str | None = None,
     clock: Callable[[], datetime] | None = None,
+    min_level: str | None = None,
 ) -> list[LogEvent]:
     """Return events in an inclusive time range, ordered by timestamp.
 
@@ -54,8 +62,16 @@ def filter_events(
     the current UTC time. Naive clock values also mean UTC. End is independent
     of the clock, and defaults to no upper bound.
     Undated events are returned last only when neither bound is supplied.
+    min_level includes that severity and higher in Serilog order: Verbose,
+    Debug, Information, Warning, Error, Fatal. Names are case-insensitive;
+    unsupported names raise ValueError. None leaves severity unrestricted.
     The caller retains ownership of the connection.
     """
+    minimum_rank = None
+    if min_level is not None:
+        if not isinstance(min_level, str) or min_level.lower() not in _LEVEL_RANKS:
+            raise ValueError("min_level must be a standard Serilog level")
+        minimum_rank = _LEVEL_RANKS[min_level.lower()]
     if since is not None:
         if start is not None:
             raise ValueError("since and start cannot be used together")
@@ -89,7 +105,9 @@ def filter_events(
     query = files("loglens").joinpath("sql/filter_events.sql").read_text(
         encoding="utf-8"
     )
-    rows = connection.execute(query, [start, start, end, end]).fetchall()
+    rows = connection.execute(
+        query, [start, start, end, end, minimum_rank, minimum_rank]
+    ).fetchall()
     return [
         LogEvent(
             timestamp=row[0].astimezone(timezone.utc) if row[0] is not None else None,
