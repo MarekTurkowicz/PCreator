@@ -165,3 +165,42 @@ def test_minimum_level_on_empty_database():
     with duckdb.connect() as connection:
         create_schema(connection)
         assert filter_events(connection, min_level="Error") == []
+
+
+@pytest.mark.parametrize("value", ["42", 42, True, None, "O'Reilly"])
+def test_context_property_matches_value_and_type(value):
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        values = ["42", 42, True, None, "O'Reilly"]
+        insert_events(connection, [
+            LogEvent(message=str(index), properties={"UserId": item})
+            for index, item in enumerate(values)
+        ] + [LogEvent(message="missing")])
+        events = filter_events(connection, context_key="UserId", context_value=value)
+        assert [event.properties for event in events] == [{"UserId": value}]
+        assert len(events) == 1
+
+
+@pytest.mark.parametrize("key", ["a.b", "a/b~c", 'a"b', "", "x') OR TRUE --"])
+def test_context_property_names_are_literal(database, key):
+    insert_events(database, [LogEvent(properties={key: "match"})])
+    assert len(filter_events(database, context_key=key, context_value="match")) == 1
+    assert filter_events(database, context_key=key, context_value="other") == []
+
+
+def test_context_property_combines_with_existing_filters(database):
+    events = filter_events(
+        database, context_key="hour", context_value=2, min_level="Information",
+        since="2h", clock=lambda: datetime(2026, 1, 1, 3),
+        end=datetime(2026, 1, 1, 2),
+    )
+    assert [event.message for event in events] == ["2"]
+    assert filter_events(database, context_key="absent", context_value=None) == []
+    assert filter_events(database, context_key="hour", context_value=2,
+                         min_level="Error") == []
+
+
+def test_context_property_on_empty_database():
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        assert filter_events(connection, context_key="UserId", context_value=42) == []
