@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(since=...)` → wyznacza dolną granicę z dodatniego czasu w jednostkach s/m/h/d/w i podmienianego zegara UTC; jednostki, granice, strefy i walidację sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`; granice, UTC, brak dat i pustą bazę sprawdza `tests/test_database_filters.py`.

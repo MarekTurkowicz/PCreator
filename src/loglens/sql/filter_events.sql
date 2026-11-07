@@ -6,4 +6,6 @@ WHERE (CAST(? AS TIMESTAMPTZ) IS NULL OR timestamp >= CAST(? AS TIMESTAMPTZ))
   AND (CAST(? AS INTEGER) IS NULL OR list_position(
       ['Verbose', 'Debug', 'Information', 'Warning', 'Error', 'Fatal'], level
   ) >= CAST(? AS INTEGER))
+  AND (CAST(? AS VARCHAR) IS NULL
+       OR json_extract(properties, CAST(? AS VARCHAR)) = CAST(? AS JSON))
 ORDER BY timestamp ASC NULLS LAST;

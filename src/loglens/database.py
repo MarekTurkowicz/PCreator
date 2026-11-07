@@ -53,6 +53,8 @@ def filter_events(
     since: str | None = None,
     clock: Callable[[], datetime] | None = None,
     min_level: str | None = None,
+    context_key: str | None = None,
+    context_value: object = None,
 ) -> list[LogEvent]:
     """Return events in an inclusive time range, ordered by timestamp.
 
@@ -65,6 +67,10 @@ def filter_events(
     min_level includes that severity and higher in Serilog order: Verbose,
     Debug, Information, Warning, Error, Fatal. Names are case-insensitive;
     unsupported names raise ValueError. None leaves severity unrestricted.
+    context_key selects a literal, case-sensitive top-level property name.
+    Its JSON value must equal context_value, including its type. A missing
+    property never matches, even when the expected value is None (JSON null).
+    None as context_key disables this filter; context_value is then ignored.
     The caller retains ownership of the connection.
     """
     minimum_rank = None
@@ -105,8 +111,17 @@ def filter_events(
     query = files("loglens").joinpath("sql/filter_events.sql").read_text(
         encoding="utf-8"
     )
+    context_path = None
+    expected_json = None
+    if context_key is not None:
+        # JSON Pointer keeps punctuation literal, including dots and quotes.
+        context_path = "/" + context_key.replace("~", "~0").replace("/", "~1")
+        expected_json = json.dumps(
+            context_value, allow_nan=False, separators=(",", ":")
+        )
     rows = connection.execute(
-        query, [start, start, end, end, minimum_rank, minimum_rank]
+        query, [start, start, end, end, minimum_rank, minimum_rank,
+                context_path, context_path, expected_json]
     ).fetchall()
     return [
         LogEvent(
