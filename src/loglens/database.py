@@ -59,6 +59,27 @@ def count_events_by_level(
     return connection.execute(query).fetchall()
 
 
+def count_errors_by_time(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    bucket_size: timedelta = timedelta(minutes=1),
+) -> list[tuple[datetime, int]]:
+    """Count dated Error and Fatal events in fixed, positive time buckets.
+
+    Buckets are anchored at the Unix epoch in UTC and include their start,
+    excluding their end. Return UTC bucket starts in chronological order;
+    empty buckets and events without timestamps are omitted. The caller owns
+    the connection. The default bucket duration is one minute.
+    """
+    if bucket_size <= timedelta(0):
+        raise ValueError("bucket_size must be positive")
+    query = files("loglens").joinpath("sql/count_errors_by_time.sql").read_text(
+        encoding="utf-8"
+    )
+    rows = connection.execute(query, [bucket_size]).fetchall()
+    return [(stamp.astimezone(timezone.utc), count) for stamp, count in rows]
+
+
 def filter_events(
     connection: duckdb.DuckDBPyConnection,
     *,

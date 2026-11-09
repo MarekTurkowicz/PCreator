@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::count_errors_by_time` → agreguje datowane zdarzenia Error i Fatal w stałych koszykach od epoki Unix przez `sql/count_errors_by_time.sql`, zwracając początki w UTC; granice, strefy, luki, puste dane i walidację czasu sprawdza `tests/test_error_counts.py`.
 - `src/loglens/database.py::count_events_by_level` → liczy zdarzenia według poziomu przez `sql/count_events_by_level.sql`, zwracając pary poziom–liczność w kolejności alfabetycznej; agregaty i pustą bazę sprawdza `tests/test_level_counts.py`.
 - `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
