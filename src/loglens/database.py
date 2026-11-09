@@ -45,6 +45,20 @@ def create_schema(connection: duckdb.DuckDBPyConnection) -> None:
     connection.execute(schema)
 
 
+def count_events_by_level(
+    connection: duckdb.DuckDBPyConnection,
+) -> list[tuple[str, int]]:
+    """Count all events by level, ordered alphabetically by level name.
+
+    Only levels present in the database are returned; an empty table yields
+    an empty list. The caller retains ownership of the connection.
+    """
+    query = files("loglens").joinpath("sql/count_events_by_level.sql").read_text(
+        encoding="utf-8"
+    )
+    return connection.execute(query).fetchall()
+
+
 def filter_events(
     connection: duckdb.DuckDBPyConnection,
     *,
