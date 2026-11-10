@@ -26,7 +26,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 20. Filtruj po właściwości kontekstu; przetestuj brak właściwości i zgodność wartości.
 - [x] 21. Dodaj plik SQL z licznością zdarzeń według poziomu; przetestuj agregaty w DuckDB.
 - [x] 22. Agreguj błędy w przedziałach czasu; przetestuj granice koszyków i UTC.
-- [ ] 23. Wyodrębniaj endpoint HTTP i czas odpowiedzi; przetestuj brakujące pola kontekstu.
+- [x] 23. Wyodrębniaj endpoint HTTP i czas odpowiedzi; przetestuj brakujące pola kontekstu.
 - [ ] 24. Obliczaj liczbę żądań i udział błędów endpointu; przetestuj puste dane.
 - [ ] 25. Obliczaj percentyle p50, p95 i p99 czasów odpowiedzi; przetestuj znany zbiór czasów.
 - [ ] 26. Dodaj CLI stats z tabelą poziomów i endpointów; przetestuj wyjście dla próbki.
