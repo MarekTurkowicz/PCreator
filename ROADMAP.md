@@ -29,7 +29,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 23. Wyodrębniaj endpoint HTTP i czas odpowiedzi; przetestuj brakujące pola kontekstu.
 - [x] 24. Obliczaj liczbę żądań i udział błędów endpointu; przetestuj puste dane.
 - [x] 25. Obliczaj percentyle p50, p95 i p99 czasów odpowiedzi; przetestuj znany zbiór czasów.
-- [ ] 26. Dodaj CLI stats z tabelą poziomów i endpointów; przetestuj wyjście dla próbki.
+- [x] 26. Dodaj CLI stats z tabelą poziomów i endpointów; przetestuj wyjście dla próbki.
 - [ ] 27. Udostępnij wyniki zapytań jako pandas DataFrame; przetestuj kolumny i typy.
 - [ ] 28. Utwórz rozwiązanie .NET 8 emitujące minimalny CLEF przez Serilog; dodaj xUnit i test próbki w Pythonie.
 - [ ] 29. Dodaj generate --count w generatorze; przetestuj liczbę zdarzeń i próbkę kontraktu w Pythonie.

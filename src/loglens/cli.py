@@ -70,3 +70,50 @@ def ingest(
         raise typer.Exit(code=1) from error
 
     typer.echo(f"Inserted events: {inserted}")
+
+
+@app.command()
+def stats(
+    database: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True),
+    ],
+) -> None:
+    """Show level counts and endpoint statistics from an ingested DuckDB file."""
+    import duckdb
+
+    from loglens.database import (
+        count_events_by_level,
+        count_requests_by_endpoint,
+        response_time_percentiles_by_endpoint,
+    )
+
+    try:
+        with duckdb.connect(str(database), read_only=True) as connection:
+            levels = count_events_by_level(connection)
+            endpoints = count_requests_by_endpoint(connection)
+            durations = {
+                path: values
+                for path, *values in response_time_percentiles_by_endpoint(connection)
+            }
+    except (OSError, duckdb.Error) as error:
+        typer.echo(f"Cannot read statistics: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo("Levels\nLevel\tEvents")
+    for level, count in levels:
+        typer.echo(f"{level}\t{count}")
+    if not levels:
+        typer.echo("No data.")
+
+    typer.echo(
+        "\nEndpoints\nEndpoint\tRequests\tError rate\tp50 (ms)\tp95 (ms)\tp99 (ms)"
+    )
+    for path, count, error_rate in endpoints:
+        values = durations.get(path)
+        percentiles = (
+            "\t".join(f"{value:.2f}" for value in values) if values else "-\t-\t-"
+        )
+        typer.echo(f"{path}\t{count}\t{error_rate:.2%}\t{percentiles}")
+    if not endpoints:
+        typer.echo("No data.")
