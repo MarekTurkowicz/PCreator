@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::response_time_percentiles_by_endpoint` → oblicza p50, p95 i p99 czasów odpowiedzi w ms według endpointu przez SQL z interpolacją liniową; znane wartości, niepoprawne dane i pustą bazę sprawdza `tests/test_response_percentiles.py`.
 - `src/loglens/database.py::count_requests_by_endpoint` → liczy żądania i udział zdarzeń Error/Fatal według niepustego `RequestPath` przez `sql/count_requests_by_endpoint.sql`; agregaty, puste dane i niepoprawne ścieżki sprawdza `tests/test_endpoint_counts.py`.
 - `src/loglens/http.py` → wyodrębnia `RequestPath` i `Elapsed` w milisekundach do `HttpDetails`; brakujące i niepoprawne pola oraz odczyt z CLEF sprawdza `tests/test_http.py`.
 - `src/loglens/database.py::count_errors_by_time` → agreguje datowane zdarzenia Error i Fatal w stałych koszykach od epoki Unix przez `sql/count_errors_by_time.sql`, zwracając początki w UTC; granice, strefy, luki, puste dane i walidację czasu sprawdza `tests/test_error_counts.py`.

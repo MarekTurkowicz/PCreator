@@ -76,6 +76,23 @@ def count_requests_by_endpoint(
     return connection.execute(query).fetchall()
 
 
+def response_time_percentiles_by_endpoint(
+    connection: duckdb.DuckDBPyConnection,
+) -> list[tuple[str, float, float, float]]:
+    """Return (endpoint, p50, p95, p99) durations in milliseconds, sorted by path.
+
+    Percentiles use linear interpolation between ordered observations. Only
+    nonblank string RequestPath values and finite, nonnegative numeric Elapsed
+    values contribute; booleans and numeric strings are ignored. Paths retain
+    their original spelling. Endpoints without valid durations are omitted,
+    and empty input yields no rows. The caller owns the connection.
+    """
+    query = files("loglens").joinpath(
+        "sql/response_time_percentiles_by_endpoint.sql"
+    ).read_text(encoding="utf-8")
+    return connection.execute(query).fetchall()
+
+
 def count_errors_by_time(
     connection: duckdb.DuckDBPyConnection,
     *,
