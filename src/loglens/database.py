@@ -2,14 +2,18 @@
 
 import json
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from loglens.models import LogEvent
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 _LEVEL_RANKS = {
     level.lower(): rank
@@ -17,6 +21,22 @@ _LEVEL_RANKS = {
         ("Verbose", "Debug", "Information", "Warning", "Error", "Fatal"), start=1
     )
 }
+
+
+def query_dataframe(
+    connection: duckdb.DuckDBPyConnection,
+    query: str,
+    parameters: Sequence[object] | None = None,
+) -> "pd.DataFrame":
+    """Execute SQL and return its result as a pandas DataFrame.
+
+    Bind values through parameters using SQL placeholders (?), rather than
+    interpolating them into query. Column names and pandas dtypes come from
+    DuckDB, including for empty results; SQL NULL values become pandas missing
+    values. Timestamp timezones follow the connection's timezone setting.
+    The complete result is loaded into memory. The caller owns the connection.
+    """
+    return connection.execute(query, parameters).fetchdf()
 
 
 def open_database(path: str | Path) -> duckdb.DuckDBPyConnection:

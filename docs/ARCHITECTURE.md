@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `src/loglens/database.py::query_dataframe` → wykonuje SQL z parametrami i zwraca pandas DataFrame; kolumny, typy, agregaty, braki danych i pusty wynik sprawdza `tests/test_dataframe.py`.
 - `src/loglens/cli.py::stats` → polecenie `loglens stats DATABASE` czyta bazę bez zapisu i prezentuje tabele poziomów oraz endpointów z liczbą żądań, udziałem błędów i p50/p95/p99; próbkę, pustą bazę i błędy sprawdza `tests/test_cli_stats.py`.
 - `src/loglens/database.py::response_time_percentiles_by_endpoint` → oblicza p50, p95 i p99 czasów odpowiedzi w ms według endpointu przez SQL z interpolacją liniową; znane wartości, niepoprawne dane i pustą bazę sprawdza `tests/test_response_percentiles.py`.
 - `src/loglens/database.py::count_requests_by_endpoint` → liczy żądania i udział zdarzeń Error/Fatal według niepustego `RequestPath` przez `sql/count_requests_by_endpoint.sql`; agregaty, puste dane i niepoprawne ścieżki sprawdza `tests/test_endpoint_counts.py`.
