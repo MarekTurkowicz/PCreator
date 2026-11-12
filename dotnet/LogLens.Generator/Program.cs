@@ -1,3 +1,3 @@
 using LogLens.Generator;
 
-MinimalGenerator.Write(Console.Out);
+return GeneratorCommand.Run(args, Console.Out, Console.Error);

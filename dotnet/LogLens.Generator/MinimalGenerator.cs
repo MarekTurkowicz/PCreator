@@ -5,18 +5,22 @@ using Serilog.Formatting.Compact;
 
 namespace LogLens.Generator;
 
-/// <summary>Emits one Information event as newline-delimited CLEF.</summary>
+/// <summary>Emits Information events as newline-delimited CLEF.</summary>
 public static class MinimalGenerator
 {
-    /// <summary>Writes an event without taking ownership of the output writer.</summary>
-    public static void Write(TextWriter output)
+    /// <summary>Writes events without taking ownership of the output writer.</summary>
+    public static void Write(TextWriter output, int count = 1)
     {
         ArgumentNullException.ThrowIfNull(output);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         using var logger = new LoggerConfiguration()
             .WriteTo.Sink(new ClefSink(output))
             .CreateLogger();
 
-        logger.Information("Hello from LogLens");
+        for (var index = 0; index < count; index++)
+        {
+            logger.Information("Hello from LogLens");
+        }
         output.Flush();
     }
 
