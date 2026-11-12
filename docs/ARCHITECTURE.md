@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `dotnet/LogLens.Generator/GeneratorCommand.cs` → obsługuje `generate --count N` (domyślnie 1, zero dozwolone), waliduje argumenty i emituje N zdarzeń CLEF; xUnit sprawdza liczność i błędy, a `tests/test_dotnet_sample.py` czyta trzy zdarzenia z `samples/dotnet-count.clef`.
 - `dotnet/LogLens.sln` → generator .NET 8 emituje jedno zdarzenie CLEF przez Serilog na stdout (`dotnet run --project dotnet/LogLens.Generator`); xUnit sprawdza emisję, a `tests/test_dotnet_sample.py` odczytuje kontrakt z `samples/dotnet-minimal.clef` bez uruchamiania .NET.
 - `src/loglens/database.py::query_dataframe` → wykonuje SQL z parametrami i zwraca pandas DataFrame; kolumny, typy, agregaty, braki danych i pusty wynik sprawdza `tests/test_dataframe.py`.
 - `src/loglens/cli.py::stats` → polecenie `loglens stats DATABASE` czyta bazę bez zapisu i prezentuje tabele poziomów oraz endpointów z liczbą żądań, udziałem błędów i p50/p95/p99; próbkę, pustą bazę i błędy sprawdza `tests/test_cli_stats.py`.
