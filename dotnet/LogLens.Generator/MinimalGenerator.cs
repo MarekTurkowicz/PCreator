@@ -2,6 +2,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
+using Serilog.Parsing;
 
 namespace LogLens.Generator;
 
@@ -9,7 +10,7 @@ namespace LogLens.Generator;
 public static class MinimalGenerator
 {
     /// <summary>Writes events without taking ownership of the output writer.</summary>
-    public static void Write(TextWriter output, int count = 1)
+    public static void Write(TextWriter output, int count = 1, int? seed = null)
     {
         ArgumentNullException.ThrowIfNull(output);
         ArgumentOutOfRangeException.ThrowIfNegative(count);
@@ -17,9 +18,22 @@ public static class MinimalGenerator
             .WriteTo.Sink(new ClefSink(output))
             .CreateLogger();
 
+        // Seeded runs use a reproducible UTC start and never read the wall clock.
+        var start = seed.HasValue
+            ? DateTimeOffset.UnixEpoch.AddSeconds(new Random(seed.Value).Next(86400))
+            : (DateTimeOffset?)null;
+        var template = new MessageTemplateParser().Parse("Hello from LogLens");
         for (var index = 0; index < count; index++)
         {
-            logger.Information("Hello from LogLens");
+            if (start.HasValue)
+            {
+                logger.Write(new LogEvent(start.Value.AddMilliseconds(index),
+                    LogEventLevel.Information, null, template, Array.Empty<LogEventProperty>()));
+            }
+            else
+            {
+                logger.Information("Hello from LogLens");
+            }
         }
         output.Flush();
     }

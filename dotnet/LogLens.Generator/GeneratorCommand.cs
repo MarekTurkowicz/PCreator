@@ -8,28 +8,49 @@ public static class GeneratorCommand
     public static int Run(string[] args, TextWriter output, TextWriter error)
     {
         var count = 1;
+        int? seed = null;
         if (args.Length != 0)
         {
-            if (args[0] != "generate" || (args.Length != 1 && args.Length != 3))
+            if (args[0] != "generate" || args.Length % 2 == 0)
             {
                 return Usage(error);
             }
 
-            if (args.Length == 3 &&
-                (args[1] != "--count" ||
-                 !int.TryParse(args[2], NumberStyles.None, CultureInfo.InvariantCulture, out count)))
+            var seen = new HashSet<string>();
+            for (var index = 1; index < args.Length; index += 2)
             {
-                return Usage(error);
+                var option = args[index];
+                if (!seen.Add(option))
+                {
+                    return Usage(error);
+                }
+
+                if (option == "--count" &&
+                    int.TryParse(args[index + 1], NumberStyles.None, CultureInfo.InvariantCulture, out var value))
+                {
+                    count = value;
+                }
+                else if (option == "--seed" &&
+                         int.TryParse(args[index + 1], NumberStyles.AllowLeadingSign,
+                             CultureInfo.InvariantCulture, out value))
+                {
+                    seed = value;
+                }
+                else
+                {
+                    return Usage(error);
+                }
             }
         }
 
-        MinimalGenerator.Write(output, count);
+        MinimalGenerator.Write(output, count, seed);
         return 0;
     }
 
     private static int Usage(TextWriter error)
     {
-        error.WriteLine("Usage: generate [--count INTEGER] (0..2147483647; default: 1)");
+        error.WriteLine("Usage: generate [--count INTEGER] [--seed INTEGER] " +
+                        "(count: 0..2147483647, default: 1; seed: signed 32-bit integer)");
         return 1;
     }
 }
