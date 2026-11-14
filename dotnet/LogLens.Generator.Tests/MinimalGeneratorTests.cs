@@ -75,7 +75,7 @@ public class MinimalGeneratorTests
         Assert.True(root.GetProperty("@t").TryGetDateTimeOffset(out _));
         Assert.Equal("Hello from LogLens", root.GetProperty("@mt").GetString());
         Assert.False(root.TryGetProperty("@l", out _));
-        Assert.Equal(2, root.EnumerateObject().Count());
+        Assert.Equal(6, root.EnumerateObject().Count());
         writer.Write("still open");
     }
 }

@@ -34,7 +34,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 28. Utwórz rozwiązanie .NET 8 emitujące minimalny CLEF przez Serilog; dodaj xUnit i test próbki w Pythonie.
 - [x] 29. Dodaj generate --count w generatorze; przetestuj liczbę zdarzeń i próbkę kontraktu w Pythonie.
 - [x] 30. Dodaj deterministyczny --seed; przetestuj powtarzalność i odczyt próbki w Pythonie.
-- [ ] 31. Generuj kontekst HTTP i czasy odpowiedzi; przetestuj zakresy i normalizację próbki w Pythonie.
+- [x] 31. Generuj kontekst HTTP i czasy odpowiedzi; przetestuj zakresy i normalizację próbki w Pythonie.
 - [ ] 32. Dodaj --error-rate i wyjątki; przetestuj wartości graniczne i próbkę błędu w Pythonie.
 - [ ] 33. Zapisuj logi generatora do wskazanego pliku; przetestuj zapis i wspólną próbkę CLEF poniżej 200 KB.
 - [ ] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
