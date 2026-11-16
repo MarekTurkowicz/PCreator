@@ -1,5 +1,6 @@
 # Mapa kodu
 
+- `dotnet/LogLens.Generator/GeneratorCommand.cs` i `MinimalGenerator.cs` → `generate --error-rate 0..1` (domyślnie 0) emituje błędy Error ze statusem 500 i wyjątkiem; granice, walidację i powtarzalność sprawdza `ErrorRateTests.cs`, a kontrakt `samples/dotnet-error.clef` odczytuje `tests/test_dotnet_sample.py`.
 - `dotnet/LogLens.Generator/MinimalGenerator.cs` → emituje kontekst GET (`RequestPath`, `RequestMethod`, `StatusCode=200`) i `Elapsed` od 0,1 do 500 ms; zakresy sprawdza `HttpContextTests.cs`, a normalizację referencyjnej próbki `samples/dotnet-http.clef` przez `extract_http` sprawdza `tests/test_dotnet_sample.py`.
 - `dotnet/LogLens.Generator/MinimalGenerator.cs` → `generate --seed INT32` ustala przez PRNG początek czasu w pierwszej dobie epoki Unix i kolejne odstępy 1 ms, zapewniając identyczny CLEF; powtarzalność i walidację sprawdza `SeedTests.cs`, a próbkę `samples/dotnet-seed.clef` odczytuje `tests/test_dotnet_sample.py`.
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` → obsługuje `generate --count N` (domyślnie 1, zero dozwolone), waliduje argumenty i emituje N zdarzeń CLEF; xUnit sprawdza liczność i błędy, a `tests/test_dotnet_sample.py` czyta trzy zdarzenia z `samples/dotnet-count.clef`.
