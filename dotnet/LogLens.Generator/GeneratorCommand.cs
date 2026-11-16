@@ -9,6 +9,7 @@ public static class GeneratorCommand
     {
         var count = 1;
         int? seed = null;
+        var errorRate = 0.0;
         if (args.Length != 0)
         {
             if (args[0] != "generate" || args.Length % 2 == 0)
@@ -36,6 +37,13 @@ public static class GeneratorCommand
                 {
                     seed = value;
                 }
+                else if (option == "--error-rate" &&
+                         double.TryParse(args[index + 1], NumberStyles.Float,
+                             CultureInfo.InvariantCulture, out var rate) &&
+                         double.IsFinite(rate) && rate >= 0 && rate <= 1)
+                {
+                    errorRate = rate;
+                }
                 else
                 {
                     return Usage(error);
@@ -43,14 +51,15 @@ public static class GeneratorCommand
             }
         }
 
-        MinimalGenerator.Write(output, count, seed);
+        MinimalGenerator.Write(output, count, seed, errorRate);
         return 0;
     }
 
     private static int Usage(TextWriter error)
     {
-        error.WriteLine("Usage: generate [--count INTEGER] [--seed INTEGER] " +
-                        "(count: 0..2147483647, default: 1; seed: signed 32-bit integer)");
+        error.WriteLine("Usage: generate [--count INTEGER] [--seed INTEGER] [--error-rate NUMBER] " +
+                        "(count: 0..2147483647, default: 1; seed: signed 32-bit integer; " +
+                        "error-rate: 0..1, default: 0)");
         return 1;
     }
 }

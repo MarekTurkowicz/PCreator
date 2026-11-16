@@ -7,6 +7,21 @@ from loglens.clef import read_file
 from loglens.http import extract_http
 
 
+def test_generate_error_serilog_sample():
+    sample = Path(__file__).resolve().parents[1] / "samples" / "dotnet-error.clef"
+    events = list(read_file(sample))
+
+    assert len(events) == 1
+    event = events[0]
+    assert event.timestamp == datetime(1970, 1, 1, 16, 2, 4, tzinfo=UTC)
+    assert event.level == "Error"
+    assert event.exception == "System.InvalidOperationException: Request failed"
+    assert event.properties["StatusCode"] == 500
+    assert event.properties["RequestMethod"] == "GET"
+    assert extract_http(event).endpoint == "/api/orders"
+    assert extract_http(event).elapsed_ms == 62.8
+
+
 def test_generate_http_serilog_sample():
     sample = Path(__file__).resolve().parents[1] / "samples" / "dotnet-http.clef"
     events = list(read_file(sample))
