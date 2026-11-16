@@ -13,5 +13,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <ProjectReference Include="../LogLens.Generator/LogLens.Generator.csproj" />
+    <None Include="../../samples/dotnet-error.clef" Link="dotnet-error.clef"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
