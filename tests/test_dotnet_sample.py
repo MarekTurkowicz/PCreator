@@ -7,6 +7,21 @@ from loglens.clef import read_file
 from loglens.http import extract_http
 
 
+def test_generator_file_output_sample(tmp_path):
+    """Shared with FileOutputTests for generate --seed 42 --error-rate 1."""
+    sample = Path(__file__).resolve().parents[1] / "samples" / "dotnet-error.clef"
+    assert 0 < sample.stat().st_size < 200_000
+    output = tmp_path / "generated logs.clef"
+    output.write_bytes(sample.read_bytes())
+
+    events = list(read_file(output))
+    assert len(events) == 1
+    assert events[0].level == "Error"
+    assert events[0].exception == "System.InvalidOperationException: Request failed"
+    assert events[0].line_number == 1
+    assert events[0].source == str(output)
+
+
 def test_generate_error_serilog_sample():
     sample = Path(__file__).resolve().parents[1] / "samples" / "dotnet-error.clef"
     events = list(read_file(sample))
