@@ -37,7 +37,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 31. Generuj kontekst HTTP i czasy odpowiedzi; przetestuj zakresy i normalizację próbki w Pythonie.
 - [x] 32. Dodaj --error-rate i wyjątki; przetestuj wartości graniczne i próbkę błędu w Pythonie.
 - [x] 33. Zapisuj logi generatora do wskazanego pliku; przetestuj zapis i wspólną próbkę CLEF poniżej 200 KB.
-- [ ] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
+- [x] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
 - [ ] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
 - [ ] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
 - [ ] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
