@@ -8,6 +8,7 @@ from loglens.clef import parse_line
 from loglens.exceptions import (
     ExceptionDetails,
     extract_exception,
+    group_exceptions,
     normalize_exception_message,
 )
 from loglens.models import LogEvent
@@ -90,3 +91,37 @@ def test_normalize_exception_message_replaces_ids(number, uuid):
 )
 def test_normalize_exception_message_preserves_static_text(message):
     assert normalize_exception_message(message) == message
+
+
+def test_group_exceptions_by_type_and_normalized_message():
+    first, second, different_type, different_message = (
+        parse_line(json.dumps({"@x": exception}))
+        for exception in (
+            "System.Exception: Order 42 failed (123e4567-e89b-12d3-a456-426614174000)"
+            "\n   at First.Run()",
+            "System.Exception: Order 73 failed (A987FBC9-4BED-4078-8F07-9141BA07C9F3)"
+            "\n   at Second.Run()",
+            "System.IO.IOException: Order 12 failed "
+            "(123e4567-e89b-12d3-a456-426614174000)",
+            "System.Exception: Order 42 expired",
+        )
+    )
+
+    events = iter([first, different_type, second, different_message])
+    assert group_exceptions(events) == {
+        ("System.Exception", "Order <number> failed (<uuid>)"): [first, second],
+        ("System.IO.IOException", "Order <number> failed (<uuid>)"): [different_type],
+        ("System.Exception", "Order <number> expired"): [different_message],
+    }
+
+
+def test_group_exceptions_handles_missing_type_message_and_exception():
+    untyped = LogEvent(exception="Order 42 failed")
+    type_only = LogEvent(exception="System.Exception")
+    absent = [LogEvent(), LogEvent(exception=""), LogEvent(exception=" \n ")]
+
+    assert group_exceptions(iter(absent)) == {}
+    assert group_exceptions(iter([*absent, untyped, type_only])) == {
+        (None, "Order <number> failed"): [untyped],
+        ("System.Exception", ""): [type_only],
+    }

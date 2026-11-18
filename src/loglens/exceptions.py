@@ -1,6 +1,7 @@
-"""Extract and normalize messages from .NET exceptions."""
+"""Extract, normalize, and group .NET exceptions."""
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 from loglens.models import LogEvent
@@ -10,6 +11,8 @@ _UUID = re.compile(
     re.IGNORECASE,
 )
 _NUMBER = re.compile(r"\b[0-9]+\b")
+
+type ExceptionSignature = tuple[str | None, str]
 
 
 @dataclass(frozen=True)
@@ -55,3 +58,23 @@ def normalize_exception_message(message: str) -> str:
     punctuation, whitespace, and digits within words such as error codes.
     """
     return _NUMBER.sub("<number>", _UUID.sub("<uuid>", message))
+
+
+def group_exceptions(
+    events: Iterable[LogEvent],
+) -> dict[ExceptionSignature, list[LogEvent]]:
+    """Group events by outer exception type and normalized message.
+
+    Skip events without exception text and preserve input order within each group.
+    """
+    groups: dict[ExceptionSignature, list[LogEvent]] = {}
+    for event in events:
+        details = extract_exception(event)
+        if details.message is None:
+            continue
+        signature = (
+            details.exception_type,
+            normalize_exception_message(details.message),
+        )
+        groups.setdefault(signature, []).append(event)
+    return groups
