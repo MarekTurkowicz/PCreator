@@ -1,9 +1,15 @@
-"""Extract the outer exception header from .NET exception text."""
+"""Extract and normalize messages from .NET exceptions."""
 
 import re
 from dataclasses import dataclass
 
 from loglens.models import LogEvent
+
+_UUID = re.compile(
+    r"\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b",
+    re.IGNORECASE,
+)
+_NUMBER = re.compile(r"\b[0-9]+\b")
 
 
 @dataclass(frozen=True)
@@ -40,3 +46,12 @@ def extract_exception(event: LogEvent) -> ExceptionDetails:
             break
         message_lines.append(line)
     return ExceptionDetails(exception_type, "\n".join(message_lines).rstrip())
+
+
+def normalize_exception_message(message: str) -> str:
+    """Replace standalone decimal digit sequences and hyphenated UUIDs.
+
+    Replace UUIDs first so their numeric segments stay together. Preserve
+    punctuation, whitespace, and digits within words such as error codes.
+    """
+    return _NUMBER.sub("<number>", _UUID.sub("<uuid>", message))
