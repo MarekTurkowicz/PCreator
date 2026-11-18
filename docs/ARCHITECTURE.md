@@ -1,5 +1,5 @@
 # Mapa kodu
-- `src/loglens/exceptions.py` → `extract_exception` wyodrębnia typ i komunikat zewnętrznego wyjątku .NET, a `normalize_exception_message` zastępuje samodzielne ciągi cyfr i UUID znacznikami `<number>` i `<uuid>`.
+- `src/loglens/exceptions.py` → `extract_exception` odczytuje typ i komunikat zewnętrznego wyjątku .NET, `normalize_exception_message` maskuje samodzielne ciągi cyfr i UUID, a `group_exceptions` grupuje zdarzenia według typu i znormalizowanego komunikatu.
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` → `generate --out PATH` zapisuje CLEF w UTF-8, nadpisując plik; `FileOutputTests.cs` sprawdza zapis, błędy i wspólną z Pythonem próbkę `samples/dotnet-error.clef` poniżej 200 KB.
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` i `MinimalGenerator.cs` → `generate --error-rate 0..1` (domyślnie 0) emituje błędy Error ze statusem 500 i wyjątkiem; granice, walidację i powtarzalność sprawdza `ErrorRateTests.cs`, a kontrakt `samples/dotnet-error.clef` odczytuje `tests/test_dotnet_sample.py`.
 - `dotnet/LogLens.Generator/MinimalGenerator.cs` → emituje kontekst GET (`RequestPath`, `RequestMethod`, `StatusCode=200`) i `Elapsed` od 0,1 do 500 ms; zakresy sprawdza `HttpContextTests.cs`, a normalizację referencyjnej próbki `samples/dotnet-http.clef` przez `extract_http` sprawdza `tests/test_dotnet_sample.py`.
