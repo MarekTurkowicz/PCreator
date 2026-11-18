@@ -38,7 +38,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 32. Dodaj --error-rate i wyjątki; przetestuj wartości graniczne i próbkę błędu w Pythonie.
 - [x] 33. Zapisuj logi generatora do wskazanego pliku; przetestuj zapis i wspólną próbkę CLEF poniżej 200 KB.
 - [x] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
-- [ ] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
+- [x] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
 - [ ] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
 - [ ] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
 - [ ] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.

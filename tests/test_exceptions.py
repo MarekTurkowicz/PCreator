@@ -1,11 +1,15 @@
-"""Extract exception headers from multiline .NET exception strings."""
+"""Extract and normalize messages from .NET exceptions."""
 
 import json
 
 import pytest
 
 from loglens.clef import parse_line
-from loglens.exceptions import ExceptionDetails, extract_exception
+from loglens.exceptions import (
+    ExceptionDetails,
+    extract_exception,
+    normalize_exception_message,
+)
 from loglens.models import LogEvent
 
 
@@ -60,3 +64,29 @@ def test_absent_exception(exception):
 )
 def test_exception_header_variants(exception, expected):
     assert extract_exception(LogEvent(exception=exception)) == expected
+
+
+@pytest.mark.parametrize(
+    ("number", "uuid"),
+    [
+        ("42", "123e4567-e89b-12d3-a456-426614174000"),
+        ("8701", "A987FBC9-4BED-4078-8F07-9141BA07C9F3"),
+        ("0", "00000000-0000-0000-0000-000000000000"),
+    ],
+)
+def test_normalize_exception_message_replaces_ids(number, uuid):
+    message = f"Order #{number} failed.\nRequest ({uuid}) was rejected."
+    event = LogEvent(exception=f"System.Exception: {message}")
+    details = extract_exception(event)
+
+    assert details.message == message
+    assert normalize_exception_message(details.message) == (
+        "Order #<number> failed.\nRequest (<uuid>) was rejected."
+    )
+
+
+@pytest.mark.parametrize(
+    "message", ["", "  Access denied.  ", "HTTP2 raised E42 in job_12."]
+)
+def test_normalize_exception_message_preserves_static_text(message):
+    assert normalize_exception_message(message) == message
