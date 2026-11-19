@@ -1,15 +1,18 @@
-"""Extract and normalize messages from .NET exceptions."""
+"""Extract, normalize, and rank .NET exceptions."""
 
 import json
+from datetime import UTC, datetime
 
 import pytest
 
 from loglens.clef import parse_line
 from loglens.exceptions import (
     ExceptionDetails,
+    ExceptionGroupSummary,
     extract_exception,
     group_exceptions,
     normalize_exception_message,
+    rank_exception_groups,
 )
 from loglens.models import LogEvent
 
@@ -125,3 +128,30 @@ def test_group_exceptions_handles_missing_type_message_and_exception():
         (None, "Order <number> failed"): [untyped],
         ("System.Exception", ""): [type_only],
     }
+
+
+def test_rank_exception_groups_by_count_with_chronological_bounds():
+    first = datetime(2025, 1, 1, tzinfo=UTC)
+    last = datetime(2025, 1, 3, tzinfo=UTC)
+    events = iter(
+        [
+            LogEvent(exception="Missing order 1"),
+            LogEvent(timestamp=last, exception="System.Exception: Order 2 failed"),
+            LogEvent(timestamp=first, exception="System.Exception: Access denied"),
+            LogEvent(exception="System.Exception: Order 3 failed"),
+            LogEvent(timestamp=first, exception="System.Exception: Order 4 failed"),
+            LogEvent(timestamp=last),
+        ]
+    )
+
+    assert rank_exception_groups(events) == [
+        ExceptionGroupSummary(
+            ("System.Exception", "Order <number> failed"), 3, first, last
+        ),
+        ExceptionGroupSummary((None, "Missing order <number>"), 1, None, None),
+        ExceptionGroupSummary(("System.Exception", "Access denied"), 1, first, first),
+    ]
+
+
+def test_rank_exception_groups_without_exceptions():
+    assert rank_exception_groups([LogEvent()]) == []

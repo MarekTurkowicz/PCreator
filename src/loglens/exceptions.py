@@ -1,8 +1,9 @@
-"""Extract, normalize, and group .NET exceptions."""
+"""Extract, normalize, group, and rank .NET exceptions."""
 
 import re
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime
 
 from loglens.models import LogEvent
 
@@ -21,6 +22,16 @@ class ExceptionDetails:
 
     exception_type: str | None = None
     message: str | None = None
+
+
+@dataclass(frozen=True)
+class ExceptionGroupSummary:
+    """Occurrence count and timestamp bounds for an exception signature."""
+
+    signature: ExceptionSignature
+    count: int
+    first_seen: datetime | None
+    last_seen: datetime | None
 
 
 def extract_exception(event: LogEvent) -> ExceptionDetails:
@@ -78,3 +89,23 @@ def group_exceptions(
         )
         groups.setdefault(signature, []).append(event)
     return groups
+
+
+def rank_exception_groups(events: Iterable[LogEvent]) -> list[ExceptionGroupSummary]:
+    """Rank by descending occurrence count, keeping input order for ties.
+
+    Events without timestamps count toward the total. Bounds use dated
+    events only and are both None when all timestamps in a group are missing.
+    """
+    summaries = []
+    for signature, group in group_exceptions(events).items():
+        timestamps = [event.timestamp for event in group if event.timestamp is not None]
+        summaries.append(
+            ExceptionGroupSummary(
+                signature=signature,
+                count=len(group),
+                first_seen=min(timestamps, default=None),
+                last_seen=max(timestamps, default=None),
+            )
+        )
+    return sorted(summaries, key=lambda summary: summary.count, reverse=True)
