@@ -1,5 +1,6 @@
 # Mapa kodu
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
+- `src/loglens/cli.py::errors` → `loglens errors DATABASE --limit N` odczytuje bazę bez zapisu i pokazuje najliczniejsze grupy wyjątków z datami oraz przykładem pełnego wyjątku (domyślnie 10 grup).
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` → `generate --out PATH` zapisuje CLEF w UTF-8, nadpisując plik; `FileOutputTests.cs` sprawdza zapis, błędy i wspólną z Pythonem próbkę `samples/dotnet-error.clef` poniżej 200 KB.
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` i `MinimalGenerator.cs` → `generate --error-rate 0..1` (domyślnie 0) emituje błędy Error ze statusem 500 i wyjątkiem; granice, walidację i powtarzalność sprawdza `ErrorRateTests.cs`, a kontrakt `samples/dotnet-error.clef` odczytuje `tests/test_dotnet_sample.py`.
 - `dotnet/LogLens.Generator/MinimalGenerator.cs` → emituje kontekst GET (`RequestPath`, `RequestMethod`, `StatusCode=200`) i `Elapsed` od 0,1 do 500 ms; zakresy sprawdza `HttpContextTests.cs`, a normalizację referencyjnej próbki `samples/dotnet-http.clef` przez `extract_http` sprawdza `tests/test_dotnet_sample.py`.
@@ -36,5 +37,4 @@
 - `pyproject.toml` → metadane pakietu w `src/`, extra `dev` oraz konfiguracja pytest i ruff.
 - `tests/test_smoke.py` → test importu pakietu i zgodności wersji z metadanymi.
 - `README.md` → opis projektu oraz instrukcje instalacji, uruchomienia i sprawdzeń.
-- `ROADMAP.md` → uporządkowany plan 60 małych zmian wraz z testami.
 - `TOPIC.md` → zakres docelowych analiz CLEF, generatora .NET i raportów.

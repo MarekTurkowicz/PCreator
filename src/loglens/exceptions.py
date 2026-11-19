@@ -97,8 +97,15 @@ def rank_exception_groups(events: Iterable[LogEvent]) -> list[ExceptionGroupSumm
     Events without timestamps count toward the total. Bounds use dated
     events only and are both None when all timestamps in a group are missing.
     """
+    return summarize_exception_groups(group_exceptions(events))
+
+
+def summarize_exception_groups(
+    groups: dict[ExceptionSignature, list[LogEvent]],
+) -> list[ExceptionGroupSummary]:
+    """Rank already grouped exceptions so callers can also access examples."""
     summaries = []
-    for signature, group in group_exceptions(events).items():
+    for signature, group in groups.items():
         timestamps = [event.timestamp for event in group if event.timestamp is not None]
         summaries.append(
             ExceptionGroupSummary(
