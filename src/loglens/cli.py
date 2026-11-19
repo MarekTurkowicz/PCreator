@@ -117,3 +117,41 @@ def stats(
         typer.echo(f"{path}\t{count}\t{error_rate:.2%}\t{percentiles}")
     if not endpoints:
         typer.echo("No data.")
+
+
+@app.command()
+def errors(
+    database: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True),
+    ],
+    limit: Annotated[int, typer.Option(min=1, help="Maximum number of groups.")] = 10,
+) -> None:
+    """Show the most frequent exception groups and an example per group."""
+    import duckdb
+
+    from loglens.database import filter_events
+    from loglens.exceptions import group_exceptions, summarize_exception_groups
+
+    try:
+        with duckdb.connect(str(database), read_only=True) as connection:
+            groups = group_exceptions(filter_events(connection))
+    except (OSError, duckdb.Error) as error:
+        typer.echo(f"Cannot read exceptions: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    if not groups:
+        typer.echo("No exceptions.")
+        return
+
+    for summary in summarize_exception_groups(groups)[:limit]:
+        exception_type, message = summary.signature
+        signature = ": ".join(part for part in (exception_type, message) if part)
+        first_seen = summary.first_seen.isoformat() if summary.first_seen else "-"
+        last_seen = summary.last_seen.isoformat() if summary.last_seen else "-"
+        example = groups[summary.signature][0].exception
+        typer.echo(
+            f"{signature}\nOccurrences: {summary.count}\n"
+            f"First seen: {first_seen}\nLast seen: {last_seen}\n"
+            f"Example:\n{example}\n"
+        )
