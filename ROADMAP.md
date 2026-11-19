@@ -40,7 +40,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
 - [x] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
 - [x] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
-- [ ] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
+- [x] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
 - [ ] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.
 - [ ] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
 - [ ] 40. Dodaj CLI trace z chronologicznym przebiegiem żądania; przetestuj kolejność zdarzeń.
