@@ -42,7 +42,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
 - [x] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
 - [x] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.
-- [ ] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
+- [x] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
 - [ ] 40. Dodaj CLI trace z chronologicznym przebiegiem żądania; przetestuj kolejność zdarzeń.
 - [ ] 41. Zbuduj model raportu łączący istniejące statystyki; przetestuj kompletność i pusty zakres.
 - [ ] 42. Renderuj raport Markdown z podsumowaniem i endpointami; przetestuj tabele i znaki specjalne.
