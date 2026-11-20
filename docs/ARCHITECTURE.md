@@ -1,4 +1,5 @@
 # Mapa kodu
+- `src/loglens/database.py::find_events_by_correlation_id` → zwraca zdarzenia z dokładnie dopasowaną tekstową właściwością `CorrelationId`, a izolację żądań sprawdza `tests/test_correlation.py`.
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
 - `src/loglens/cli.py::errors` → `loglens errors DATABASE --limit N` odczytuje bazę bez zapisu i pokazuje najliczniejsze grupy wyjątków z datami oraz przykładem pełnego wyjątku (domyślnie 10 grup).
 - `dotnet/LogLens.Generator/GeneratorCommand.cs` → `generate --out PATH` zapisuje CLEF w UTF-8, nadpisując plik; `FileOutputTests.cs` sprawdza zapis, błędy i wspólną z Pythonem próbkę `samples/dotnet-error.clef` poniżej 200 KB.
@@ -16,8 +17,7 @@
 - `src/loglens/database.py::count_events_by_level` → liczy zdarzenia według poziomu przez `sql/count_events_by_level.sql`, zwracając pary poziom–liczność w kolejności alfabetycznej; agregaty i pustą bazę sprawdza `tests/test_level_counts.py`.
 - `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
-- `src/loglens/database.py::filter_events(since=...)` → wyznacza dolną granicę z dodatniego czasu w jednostkach s/m/h/d/w i podmienianego zegara UTC; jednostki, granice, strefy i walidację sprawdza `tests/test_database_filters.py`.
-- `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`; granice, UTC, brak dat i pustą bazę sprawdza `tests/test_database_filters.py`.
+- `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`, z opcjonalną dolną granicą `since` w jednostkach s/m/h/d/w i podmienianym zegarem UTC, co sprawdza `tests/test_database_filters.py`.
 - `src/loglens/cli.py::ingest` → polecenie `loglens ingest DIRECTORY DATABASE` zapisuje logi strumieniowo do DuckDB, pomijając błędne linie z diagnostyką; próbkę, metadane, pusty katalog i błędy sprawdza `tests/test_cli_ingest.py`.
 - `src/loglens/database.py::open_database` → otwiera lub tworzy bazę plikową z idempotentnym schematem; zachowanie danych i dopisywanie po ponownym otwarciu dla ścieżek `str` i `Path` sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::insert_events` → zapisuje leniwy strumień zdarzeń partiami przez parametryzowany `sql/insert_events.sql`, zachowując JSON i metadane; dane, granice partii i walidację rozmiaru sprawdza `tests/test_database.py`.

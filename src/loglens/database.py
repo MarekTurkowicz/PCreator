@@ -227,6 +227,21 @@ def filter_events(
     ]
 
 
+def find_events_by_correlation_id(
+    connection: duckdb.DuckDBPyConnection,
+    correlation_id: str,
+) -> list[LogEvent]:
+    """Find events with an exact string match on the CLEF CorrelationId property.
+
+    Return events in timestamp order, with undated events last.
+    """
+    if not isinstance(correlation_id, str):
+        raise TypeError("correlation_id must be a string")
+    return filter_events(
+        connection, context_key="CorrelationId", context_value=correlation_id
+    )
+
+
 def insert_events(
     connection: duckdb.DuckDBPyConnection,
     events: Iterable[LogEvent],
