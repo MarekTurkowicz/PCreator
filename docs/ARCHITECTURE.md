@@ -1,5 +1,5 @@
 # Mapa kodu
-- `src/loglens/report.py` → buduje model raportu dla wybranego zakresu, łącząc liczności poziomów, statystyki i percentyle endpointów, szereg błędów oraz ranking wyjątków.
+- `src/loglens/report.py` → łączy statystyki poziomów i endpointów, szereg błędów oraz ranking wyjątków dla wybranego zakresu, a `render_markdown` renderuje podsumowanie i tabelę endpointów z zabezpieczeniem znaków specjalnych.
 - `src/loglens/cli.py::trace` → `loglens trace DATABASE CORRELATION_ID` pokazuje czas UTC, poziom i komunikat zdarzeń w kolejności chronologicznej, korzystając z dokładnego dopasowania `CorrelationId` przez `database.py::find_events_by_correlation_id`.
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
 - `src/loglens/cli.py::errors` → `loglens errors DATABASE --limit N` odczytuje bazę bez zapisu i pokazuje najliczniejsze grupy wyjątków z datami oraz przykładem pełnego wyjątku (domyślnie 10 grup).

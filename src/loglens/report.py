@@ -1,21 +1,18 @@
-"""Build a report from the existing log statistics."""
+"""Build and render reports from the existing log statistics."""
+
+from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-import duckdb
-
-from loglens.database import (
-    count_errors_by_time,
-    count_events_by_level,
-    count_requests_by_endpoint,
-    create_schema,
-    filter_events,
-    insert_events,
-    response_time_percentiles_by_endpoint,
-)
 from loglens.exceptions import ExceptionGroupSummary, rank_exception_groups
+
+if TYPE_CHECKING:
+    import duckdb
+
+_MARKDOWN_CELL_ESCAPES = str.maketrans({char: f"\\{char}" for char in "\\|`<>&[]*_~"})
 
 
 @dataclass(frozen=True)
@@ -54,6 +51,10 @@ def build_report(
     Error counts use one-minute UTC buckets. A bounded selection is copied
     to a private in-memory database so all aggregates use the same events.
     """
+    import duckdb
+
+    from loglens.database import create_schema, filter_events, insert_events
+
     events = filter_events(connection, start=start, end=end, since=since, clock=clock)
     exception_groups = tuple(rank_exception_groups(events))
     if start is None and end is None and since is None:
@@ -69,6 +70,13 @@ def _summarize(
     connection: duckdb.DuckDBPyConnection,
     exception_groups: tuple[ExceptionGroupSummary, ...],
 ) -> Report:
+    from loglens.database import (
+        count_errors_by_time,
+        count_events_by_level,
+        count_requests_by_endpoint,
+        response_time_percentiles_by_endpoint,
+    )
+
     level_counts = tuple(count_events_by_level(connection))
     durations = {
         path: (p50, p95, p99)
@@ -87,3 +95,42 @@ def _summarize(
         errors_by_time=tuple(count_errors_by_time(connection)),
         exception_groups=exception_groups,
     )
+
+
+def _escape_markdown_cell(value: str) -> str:
+    return " ".join(value.splitlines()).translate(_MARKDOWN_CELL_ESCAPES)
+
+
+def render_markdown(report: Report) -> str:
+    """Render the event summary and endpoint metrics as Markdown tables."""
+    lines = ["# LogLens report", "", "## Summary", ""]
+    lines.extend([f"Total events: {report.total_events}", ""])
+    if report.level_counts:
+        lines.extend(["| Level | Events |", "| --- | ---: |"])
+        lines.extend(
+            f"| {_escape_markdown_cell(level)} | {count} |"
+            for level, count in report.level_counts
+        )
+    else:
+        lines.append("No events.")
+
+    lines.extend(["", "## Endpoints", ""])
+    if report.endpoints:
+        lines.extend([
+            "| Endpoint | Requests | Error rate | p50 (ms) | p95 (ms) | p99 (ms) |",
+            "| --- | ---: | ---: | ---: | ---: | ---: |",
+        ])
+        for endpoint in report.endpoints:
+            path = _escape_markdown_cell(endpoint.path)
+            percentiles = " | ".join(
+                "-" if value is None else f"{value:.2f}"
+                for value in (endpoint.p50_ms, endpoint.p95_ms, endpoint.p99_ms)
+            )
+            lines.append(
+                f"| {path} | {endpoint.request_count} | "
+                f"{endpoint.error_rate:.2%} | {percentiles} |"
+            )
+    else:
+        lines.append("No endpoint data.")
+
+    return "\n".join(lines) + "\n"
