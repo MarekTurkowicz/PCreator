@@ -44,7 +44,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.
 - [x] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
 - [x] 40. Dodaj CLI trace z chronologicznym przebiegiem żądania; przetestuj kolejność zdarzeń.
-- [ ] 41. Zbuduj model raportu łączący istniejące statystyki; przetestuj kompletność i pusty zakres.
+- [x] 41. Zbuduj model raportu łączący istniejące statystyki; przetestuj kompletność i pusty zakres.
 - [ ] 42. Renderuj raport Markdown z podsumowaniem i endpointami; przetestuj tabele i znaki specjalne.
 - [ ] 43. Dodaj CLI report z --since i --out dla Markdown; przetestuj raport z katalogu próbek.
 - [ ] 44. Eksportuj statystyki endpointów do CSV; przetestuj nagłówki i cytowanie wartości.
