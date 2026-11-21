@@ -28,21 +28,21 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 22. Agreguj błędy w przedziałach czasu; przetestuj granice koszyków i UTC.
 - [x] 23. Wyodrębniaj endpoint HTTP i czas odpowiedzi; przetestuj brakujące pola kontekstu.
 - [x] 24. Obliczaj liczbę żądań i udział błędów endpointu; przetestuj puste dane.
-- [ ] 25. Obliczaj percentyle p50, p95 i p99 czasów odpowiedzi; przetestuj znany zbiór czasów.
-- [ ] 26. Dodaj CLI stats z tabelą poziomów i endpointów; przetestuj wyjście dla próbki.
-- [ ] 27. Udostępnij wyniki zapytań jako pandas DataFrame; przetestuj kolumny i typy.
-- [ ] 28. Utwórz rozwiązanie .NET 8 emitujące minimalny CLEF przez Serilog; dodaj xUnit i test próbki w Pythonie.
-- [ ] 29. Dodaj generate --count w generatorze; przetestuj liczbę zdarzeń i próbkę kontraktu w Pythonie.
-- [ ] 30. Dodaj deterministyczny --seed; przetestuj powtarzalność i odczyt próbki w Pythonie.
-- [ ] 31. Generuj kontekst HTTP i czasy odpowiedzi; przetestuj zakresy i normalizację próbki w Pythonie.
-- [ ] 32. Dodaj --error-rate i wyjątki; przetestuj wartości graniczne i próbkę błędu w Pythonie.
-- [ ] 33. Zapisuj logi generatora do wskazanego pliku; przetestuj zapis i wspólną próbkę CLEF poniżej 200 KB.
-- [ ] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
-- [ ] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
-- [ ] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
-- [ ] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
-- [ ] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.
-- [ ] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
+- [x] 25. Obliczaj percentyle p50, p95 i p99 czasów odpowiedzi; przetestuj znany zbiór czasów.
+- [x] 26. Dodaj CLI stats z tabelą poziomów i endpointów; przetestuj wyjście dla próbki.
+- [x] 27. Udostępnij wyniki zapytań jako pandas DataFrame; przetestuj kolumny i typy.
+- [x] 28. Utwórz rozwiązanie .NET 8 emitujące minimalny CLEF przez Serilog; dodaj xUnit i test próbki w Pythonie.
+- [x] 29. Dodaj generate --count w generatorze; przetestuj liczbę zdarzeń i próbkę kontraktu w Pythonie.
+- [x] 30. Dodaj deterministyczny --seed; przetestuj powtarzalność i odczyt próbki w Pythonie.
+- [x] 31. Generuj kontekst HTTP i czasy odpowiedzi; przetestuj zakresy i normalizację próbki w Pythonie.
+- [x] 32. Dodaj --error-rate i wyjątki; przetestuj wartości graniczne i próbkę błędu w Pythonie.
+- [x] 33. Zapisuj logi generatora do wskazanego pliku; przetestuj zapis i wspólną próbkę CLEF poniżej 200 KB.
+- [x] 34. Wyodrębniaj typ i komunikat wyjątku; przetestuj wieloliniowe wyjątki .NET.
+- [x] 35. Normalizuj identyfikatory w komunikatach wyjątków; przetestuj liczby, UUID i stałe fragmenty.
+- [x] 36. Grupuj wyjątki według znormalizowanej sygnatury; przetestuj podobne i różne błędy.
+- [x] 37. Dodaj ranking grup wyjątków z pierwszym i ostatnim wystąpieniem; przetestuj kolejność.
+- [x] 38. Dodaj CLI errors z limitem grup i przykładem wyjątku; przetestuj limit i pusty wynik.
+- [x] 39. Wyszukuj zdarzenia po identyfikatorze korelacji; przetestuj izolację żądań.
 - [ ] 40. Dodaj CLI trace z chronologicznym przebiegiem żądania; przetestuj kolejność zdarzeń.
 - [ ] 41. Zbuduj model raportu łączący istniejące statystyki; przetestuj kompletność i pusty zakres.
 - [ ] 42. Renderuj raport Markdown z podsumowaniem i endpointami; przetestuj tabele i znaki specjalne.

@@ -1,13 +1,23 @@
 # Mapa kodu
-
-- `src/loglens/database.py::count_requests_by_endpoint` → liczy żądania i udział zdarzeń Error/Fatal według niepustego `RequestPath` przez `sql/count_requests_by_endpoint.sql`; agregaty, brak danych HTTP i pustą bazę sprawdza `tests/test_endpoint_counts.py`.
+- `src/loglens/database.py::find_events_by_correlation_id` → zwraca zdarzenia z dokładnie dopasowaną tekstową właściwością `CorrelationId`, a izolację żądań sprawdza `tests/test_correlation.py`.
+- `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
+- `src/loglens/cli.py::errors` → `loglens errors DATABASE --limit N` odczytuje bazę bez zapisu i pokazuje najliczniejsze grupy wyjątków z datami oraz przykładem pełnego wyjątku (domyślnie 10 grup).
+- `dotnet/LogLens.Generator/GeneratorCommand.cs` → `generate --out PATH` zapisuje CLEF w UTF-8, nadpisując plik; `FileOutputTests.cs` sprawdza zapis, błędy i wspólną z Pythonem próbkę `samples/dotnet-error.clef` poniżej 200 KB.
+- `dotnet/LogLens.Generator/GeneratorCommand.cs` i `MinimalGenerator.cs` → `generate --error-rate 0..1` (domyślnie 0) emituje błędy Error ze statusem 500 i wyjątkiem; granice, walidację i powtarzalność sprawdza `ErrorRateTests.cs`, a kontrakt `samples/dotnet-error.clef` odczytuje `tests/test_dotnet_sample.py`.
+- `dotnet/LogLens.Generator/MinimalGenerator.cs` → emituje kontekst GET (`RequestPath`, `RequestMethod`, `StatusCode=200`) i `Elapsed` od 0,1 do 500 ms; zakresy sprawdza `HttpContextTests.cs`, a normalizację referencyjnej próbki `samples/dotnet-http.clef` przez `extract_http` sprawdza `tests/test_dotnet_sample.py`.
+- `dotnet/LogLens.Generator/MinimalGenerator.cs` → `generate --seed INT32` ustala przez PRNG początek czasu w pierwszej dobie epoki Unix i kolejne odstępy 1 ms, zapewniając identyczny CLEF; powtarzalność i walidację sprawdza `SeedTests.cs`, a próbkę `samples/dotnet-seed.clef` odczytuje `tests/test_dotnet_sample.py`.
+- `dotnet/LogLens.Generator/GeneratorCommand.cs` → obsługuje `generate --count N` (domyślnie 1, zero dozwolone), waliduje argumenty i emituje N zdarzeń CLEF; xUnit sprawdza liczność i błędy, a `tests/test_dotnet_sample.py` czyta trzy zdarzenia z `samples/dotnet-count.clef`.
+- `dotnet/LogLens.sln` → generator .NET 8 emituje jedno zdarzenie CLEF przez Serilog na stdout (`dotnet run --project dotnet/LogLens.Generator`); xUnit sprawdza emisję, a `tests/test_dotnet_sample.py` odczytuje kontrakt z `samples/dotnet-minimal.clef` bez uruchamiania .NET.
+- `src/loglens/database.py::query_dataframe` → wykonuje SQL z parametrami i zwraca pandas DataFrame; kolumny, typy, agregaty, braki danych i pusty wynik sprawdza `tests/test_dataframe.py`.
+- `src/loglens/cli.py::stats` → polecenie `loglens stats DATABASE` czyta bazę bez zapisu i prezentuje tabele poziomów oraz endpointów z liczbą żądań, udziałem błędów i p50/p95/p99; próbkę, pustą bazę i błędy sprawdza `tests/test_cli_stats.py`.
+- `src/loglens/database.py::response_time_percentiles_by_endpoint` → oblicza p50, p95 i p99 czasów odpowiedzi w ms według endpointu przez SQL z interpolacją liniową; znane wartości, niepoprawne dane i pustą bazę sprawdza `tests/test_response_percentiles.py`.
+- `src/loglens/database.py::count_requests_by_endpoint` → liczy żądania i udział zdarzeń Error/Fatal według niepustego `RequestPath` przez `sql/count_requests_by_endpoint.sql`; agregaty, puste dane i niepoprawne ścieżki sprawdza `tests/test_endpoint_counts.py`.
 - `src/loglens/http.py` → wyodrębnia `RequestPath` i `Elapsed` w milisekundach do `HttpDetails`; brakujące i niepoprawne pola oraz odczyt z CLEF sprawdza `tests/test_http.py`.
 - `src/loglens/database.py::count_errors_by_time` → agreguje datowane zdarzenia Error i Fatal w stałych koszykach od epoki Unix przez `sql/count_errors_by_time.sql`, zwracając początki w UTC; granice, strefy, luki, puste dane i walidację czasu sprawdza `tests/test_error_counts.py`.
 - `src/loglens/database.py::count_events_by_level` → liczy zdarzenia według poziomu przez `sql/count_events_by_level.sql`, zwracając pary poziom–liczność w kolejności alfabetycznej; agregaty i pustą bazę sprawdza `tests/test_level_counts.py`.
 - `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
-- `src/loglens/database.py::filter_events(since=...)` → wyznacza dolną granicę z dodatniego czasu w jednostkach s/m/h/d/w i podmienianego zegara UTC; jednostki, granice, strefy i walidację sprawdza `tests/test_database_filters.py`.
-- `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`; granice, UTC, brak dat i pustą bazę sprawdza `tests/test_database_filters.py`.
+- `src/loglens/database.py::filter_events` → zwraca zdarzenia z domkniętego przedziału dat przez parametryzowany `sql/filter_events.sql`, z opcjonalną dolną granicą `since` w jednostkach s/m/h/d/w i podmienianym zegarem UTC, co sprawdza `tests/test_database_filters.py`.
 - `src/loglens/cli.py::ingest` → polecenie `loglens ingest DIRECTORY DATABASE` zapisuje logi strumieniowo do DuckDB, pomijając błędne linie z diagnostyką; próbkę, metadane, pusty katalog i błędy sprawdza `tests/test_cli_ingest.py`.
 - `src/loglens/database.py::open_database` → otwiera lub tworzy bazę plikową z idempotentnym schematem; zachowanie danych i dopisywanie po ponownym otwarciu dla ścieżek `str` i `Path` sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::insert_events` → zapisuje leniwy strumień zdarzeń partiami przez parametryzowany `sql/insert_events.sql`, zachowując JSON i metadane; dane, granice partii i walidację rozmiaru sprawdza `tests/test_database.py`.
@@ -27,5 +37,4 @@
 - `pyproject.toml` → metadane pakietu w `src/`, extra `dev` oraz konfiguracja pytest i ruff.
 - `tests/test_smoke.py` → test importu pakietu i zgodności wersji z metadanymi.
 - `README.md` → opis projektu oraz instrukcje instalacji, uruchomienia i sprawdzeń.
-- `ROADMAP.md` → uporządkowany plan 60 małych zmian wraz z testami.
 - `TOPIC.md` → zakres docelowych analiz CLEF, generatora .NET i raportów.

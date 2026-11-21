@@ -1,0 +1,1 @@
+{"@t":"1970-01-01T16:02:04.0000000Z","@mt":"Hello from LogLens","@l":"Error","@x":"System.InvalidOperationException: Request failed","RequestPath":"/api/orders","RequestMethod":"GET","StatusCode":500,"Elapsed":62.8}

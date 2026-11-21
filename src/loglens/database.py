@@ -2,14 +2,18 @@
 
 import json
 import re
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import duckdb
 
 from loglens.models import LogEvent
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 _LEVEL_RANKS = {
     level.lower(): rank
@@ -17,6 +21,22 @@ _LEVEL_RANKS = {
         ("Verbose", "Debug", "Information", "Warning", "Error", "Fatal"), start=1
     )
 }
+
+
+def query_dataframe(
+    connection: duckdb.DuckDBPyConnection,
+    query: str,
+    parameters: Sequence[object] | None = None,
+) -> "pd.DataFrame":
+    """Execute SQL and return its result as a pandas DataFrame.
+
+    Bind values through parameters using SQL placeholders (?), rather than
+    interpolating them into query. Column names and pandas dtypes come from
+    DuckDB, including for empty results; SQL NULL values become pandas missing
+    values. Timestamp timezones follow the connection's timezone setting.
+    The complete result is loaded into memory. The caller owns the connection.
+    """
+    return connection.execute(query, parameters).fetchdf()
 
 
 def open_database(path: str | Path) -> duckdb.DuckDBPyConnection:
@@ -73,6 +93,23 @@ def count_requests_by_endpoint(
     query = files("loglens").joinpath("sql/count_requests_by_endpoint.sql").read_text(
         encoding="utf-8"
     )
+    return connection.execute(query).fetchall()
+
+
+def response_time_percentiles_by_endpoint(
+    connection: duckdb.DuckDBPyConnection,
+) -> list[tuple[str, float, float, float]]:
+    """Return (endpoint, p50, p95, p99) durations in milliseconds, sorted by path.
+
+    Percentiles use linear interpolation between ordered observations. Only
+    nonblank string RequestPath values and finite, nonnegative numeric Elapsed
+    values contribute; booleans and numeric strings are ignored. Paths retain
+    their original spelling. Endpoints without valid durations are omitted,
+    and empty input yields no rows. The caller owns the connection.
+    """
+    query = files("loglens").joinpath(
+        "sql/response_time_percentiles_by_endpoint.sql"
+    ).read_text(encoding="utf-8")
     return connection.execute(query).fetchall()
 
 
@@ -188,6 +225,21 @@ def filter_events(
         )
         for row in rows
     ]
+
+
+def find_events_by_correlation_id(
+    connection: duckdb.DuckDBPyConnection,
+    correlation_id: str,
+) -> list[LogEvent]:
+    """Find events with an exact string match on the CLEF CorrelationId property.
+
+    Return events in timestamp order, with undated events last.
+    """
+    if not isinstance(correlation_id, str):
+        raise TypeError("correlation_id must be a string")
+    return filter_events(
+        connection, context_key="CorrelationId", context_value=correlation_id
+    )
 
 
 def insert_events(
