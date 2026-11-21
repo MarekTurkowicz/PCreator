@@ -4,15 +4,15 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-duckdb = pytest.importorskip("duckdb")
-
-from loglens.database import create_schema, insert_events  # noqa: E402
-from loglens.models import LogEvent  # noqa: E402
-from loglens.report import EndpointStats, build_report  # noqa: E402
+from loglens.models import LogEvent
+from loglens.report import EndpointStats, Report, build_report, render_markdown
 
 
 @pytest.fixture
 def report_data():
+    duckdb = pytest.importorskip("duckdb")
+    from loglens.database import create_schema, insert_events
+
     start = datetime(2026, 1, 1, 12, tzinfo=timezone.utc)
     end = start + timedelta(minutes=1)
     exception = "System.InvalidOperationException: Request failed"
@@ -86,3 +86,50 @@ def test_build_report_with_relative_lower_bound(report_data):
     relative = build_report(connection, since="1m", clock=lambda: end, end=end)
 
     assert relative == build_report(connection, start=start, end=end)
+
+
+def test_render_markdown_formats_summary_and_endpoint_tables():
+    report = Report(
+        total_events=4,
+        level_counts=(("Error", 1), ("Fatal", 1), ("Information", 1), ("Warning", 1)),
+        endpoints=(
+            EndpointStats("/api", 2, 0.5, 10, 10, 10),
+            EndpointStats("/missing-duration", 1, 0, None, None, None),
+        ),
+        errors_by_time=(),
+        exception_groups=(),
+    )
+
+    assert render_markdown(report) == (
+        "# LogLens report\n\n"
+        "## Summary\n\n"
+        "Total events: 4\n\n"
+        "| Level | Events |\n"
+        "| --- | ---: |\n"
+        "| Error | 1 |\n"
+        "| Fatal | 1 |\n"
+        "| Information | 1 |\n"
+        "| Warning | 1 |\n\n"
+        "## Endpoints\n\n"
+        "| Endpoint | Requests | Error rate | p50 (ms) | p95 (ms) | p99 (ms) |\n"
+        "| --- | ---: | ---: | ---: | ---: | ---: |\n"
+        "| /api | 2 | 50.00% | 10.00 | 10.00 | 10.00 |\n"
+        "| /missing-duration | 1 | 0.00% | - | - | - |\n"
+    )
+
+
+def test_render_markdown_escapes_endpoint_cells():
+    path = "/zażółć\\|`a`\r\n<script>&copy;[b](c)*_~"
+    report = Report(1, (), (EndpointStats(path, 1, 0, 0, None, None),), (), ())
+
+    assert render_markdown(report).splitlines()[-1] == (
+        r"| /zażółć\\\|\`a\` \<script\>\&copy;\[b\](c)\*\_\~"
+        " | 1 | 0.00% | 0.00 | - | - |"
+    )
+
+
+def test_render_markdown_describes_empty_data():
+    markdown = render_markdown(Report(0, (), (), (), ()))
+
+    assert "Total events: 0\n\nNo events.\n" in markdown
+    assert markdown.endswith("## Endpoints\n\nNo endpoint data.\n")
