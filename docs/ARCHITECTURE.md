@@ -1,4 +1,5 @@
 # Mapa kodu
+- `src/loglens/report.py` → buduje model raportu dla wybranego zakresu, łącząc liczności poziomów, statystyki i percentyle endpointów, szereg błędów oraz ranking wyjątków.
 - `src/loglens/cli.py::trace` → `loglens trace DATABASE CORRELATION_ID` pokazuje czas UTC, poziom i komunikat zdarzeń w kolejności chronologicznej, korzystając z dokładnego dopasowania `CorrelationId` przez `database.py::find_events_by_correlation_id`.
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
 - `src/loglens/cli.py::errors` → `loglens errors DATABASE --limit N` odczytuje bazę bez zapisu i pokazuje najliczniejsze grupy wyjątków z datami oraz przykładem pełnego wyjątku (domyślnie 10 grup).
@@ -34,7 +35,6 @@
 - `src/loglens/clef.py::parse_line` → zachowuje wyjątek `@x` i zagnieżdżony kontekst, pomija metadane CLEF i odkodowuje nazwy `@@`; testy w `tests/test_clef.py`.
 - `src/loglens/clef.py::read_file` → czyta plik UTF-8 leniwie, przypisując zdarzeniom ścieżkę źródła i numer linii od 1; testy w `tests/test_reader.py`.
 - `src/loglens/clef.py::read_file(strict=False)` → pomija błędne linie z ostrzeżeniem zawierającym ścieżkę, numer linii i przyczynę; domyślny tryb ścisły i błędy plików nadal zgłaszają wyjątki, co sprawdza `tests/test_reader.py`.
-- `pyproject.toml` → metadane pakietu w `src/`, extra `dev` oraz konfiguracja pytest i ruff.
-- `tests/test_smoke.py` → test importu pakietu i zgodności wersji z metadanymi.
+- `pyproject.toml` i `tests/test_smoke.py` → konfigurują pakiet, pytest i ruff oraz sprawdzają import i zgodność wersji z metadanymi.
 - `README.md` → opis projektu oraz instrukcje instalacji, uruchomienia i sprawdzeń.
 - `TOPIC.md` → zakres docelowych analiz CLEF, generatora .NET i raportów.
