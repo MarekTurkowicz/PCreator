@@ -155,3 +155,34 @@ def errors(
             f"First seen: {first_seen}\nLast seen: {last_seen}\n"
             f"Example:\n{example}\n"
         )
+
+
+@app.command()
+def trace(
+    database: Annotated[
+        Path,
+        typer.Argument(exists=True, dir_okay=False, readable=True),
+    ],
+    correlation_id: Annotated[str, typer.Argument(help="Request CorrelationId.")],
+) -> None:
+    """Show events for one request in chronological order."""
+    import duckdb
+
+    from loglens.database import find_events_by_correlation_id
+
+    try:
+        with duckdb.connect(str(database), read_only=True) as connection:
+            events = find_events_by_correlation_id(connection, correlation_id)
+    except (OSError, duckdb.Error) as error:
+        typer.echo(f"Cannot read trace: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    if not events:
+        typer.echo("No matching events.")
+        return
+
+    typer.echo("Timestamp\tLevel\tMessage")
+    for event in events:
+        timestamp = event.timestamp.isoformat() if event.timestamp is not None else "-"
+        message = event.message if event.message is not None else event.message_template
+        typer.echo(f"{timestamp}\t{event.level}\t{message}")
