@@ -1,11 +1,19 @@
 """Report statistics for a selected time range."""
 
+import csv
 from datetime import datetime, timedelta, timezone
+from io import StringIO
 
 import pytest
 
 from loglens.models import LogEvent
-from loglens.report import EndpointStats, Report, build_report, render_markdown
+from loglens.report import (
+    EndpointStats,
+    Report,
+    build_report,
+    render_csv,
+    render_markdown,
+)
 
 
 @pytest.fixture
@@ -133,3 +141,33 @@ def test_render_markdown_describes_empty_data():
 
     assert "Total events: 0\n\nNo events.\n" in markdown
     assert markdown.endswith("## Endpoints\n\nNo endpoint data.\n")
+
+
+def test_render_csv_exports_endpoint_metrics_and_quotes_paths():
+    path = '/zażółć,"api"\r\nnext'
+    report = Report(
+        total_events=4,
+        level_counts=(("Error", 1), ("Information", 3)),
+        endpoints=(
+            EndpointStats(path, 3, 1 / 3, 0.0, 12.345, 25.75),
+            EndpointStats("/missing-duration", 1, 0.0, None, None, None),
+        ),
+        errors_by_time=(),
+        exception_groups=(),
+    )
+
+    rows = list(csv.reader(StringIO(render_csv(report), newline="")))
+
+    assert rows == [
+        ["endpoint", "request_count", "error_rate", "p50_ms", "p95_ms", "p99_ms"],
+        [path, "3", str(1 / 3), "0.0", "12.345", "25.75"],
+        ["/missing-duration", "1", "0.0", "", "", ""],
+    ]
+
+
+def test_render_csv_without_endpoints_outputs_only_headers():
+    report = Report(0, (), (), (), ())
+
+    assert render_csv(report) == (
+        "endpoint,request_count,error_rate,p50_ms,p95_ms,p99_ms\r\n"
+    )

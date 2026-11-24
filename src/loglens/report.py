@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import csv
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
+from io import StringIO
 from typing import TYPE_CHECKING
 
 from loglens.exceptions import ExceptionGroupSummary, rank_exception_groups
@@ -134,3 +136,24 @@ def render_markdown(report: Report) -> str:
         lines.append("No endpoint data.")
 
     return "\n".join(lines) + "\n"
+
+
+def render_csv(report: Report) -> str:
+    """Render endpoint statistics as CSV with fractional error rates."""
+    output = StringIO(newline="")
+    writer = csv.writer(output)
+    writer.writerow(
+        ("endpoint", "request_count", "error_rate", "p50_ms", "p95_ms", "p99_ms")
+    )
+    writer.writerows(
+        (
+            endpoint.path,
+            endpoint.request_count,
+            endpoint.error_rate,
+            endpoint.p50_ms,
+            endpoint.p95_ms,
+            endpoint.p99_ms,
+        )
+        for endpoint in report.endpoints
+    )
+    return output.getvalue()
