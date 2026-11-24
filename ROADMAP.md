@@ -46,7 +46,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 40. Dodaj CLI trace z chronologicznym przebiegiem żądania; przetestuj kolejność zdarzeń.
 - [x] 41. Zbuduj model raportu łączący istniejące statystyki; przetestuj kompletność i pusty zakres.
 - [x] 42. Renderuj raport Markdown z podsumowaniem i endpointami; przetestuj tabele i znaki specjalne.
-- [ ] 43. Dodaj CLI report z --since i --out dla Markdown; przetestuj raport z katalogu próbek.
+- [x] 43. Dodaj CLI report z --since i --out dla Markdown; przetestuj raport z katalogu próbek.
 - [ ] 44. Eksportuj statystyki endpointów do CSV; przetestuj nagłówki i cytowanie wartości.
 - [ ] 45. Renderuj raport HTML z escapowaniem treści; przetestuj dane zawierające HTML.
 - [ ] 46. Wybieraj format raportu przez CLI i rozszerzenie pliku; przetestuj poprawne i błędne formaty.
