@@ -1,4 +1,5 @@
 # Mapa kodu
+- `src/loglens/cli.py::report` → `loglens report DIRECTORY [--since 2h] [--out PATH]` wczytuje CLEF do bazy w pamięci i generuje raport Markdown do pliku lub na stdout.
 - `src/loglens/report.py` → łączy statystyki poziomów i endpointów, szereg błędów oraz ranking wyjątków dla wybranego zakresu, a `render_markdown` renderuje podsumowanie i tabelę endpointów z zabezpieczeniem znaków specjalnych.
 - `src/loglens/cli.py::trace` → `loglens trace DATABASE CORRELATION_ID` pokazuje czas UTC, poziom i komunikat zdarzeń w kolejności chronologicznej, korzystając z dokładnego dopasowania `CorrelationId` przez `database.py::find_events_by_correlation_id`.
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
@@ -23,8 +24,7 @@
 - `src/loglens/database.py::open_database` → otwiera lub tworzy bazę plikową z idempotentnym schematem; zachowanie danych i dopisywanie po ponownym otwarciu dla ścieżek `str` i `Path` sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::insert_events` → zapisuje leniwy strumień zdarzeń partiami przez parametryzowany `sql/insert_events.sql`, zachowując JSON i metadane; dane, granice partii i walidację rozmiaru sprawdza `tests/test_database.py`.
 - `src/loglens/database.py::create_schema` → tworzy idempotentnie tabelę zdarzeń DuckDB z `sql/schema.sql`, pakowanym jako zasób; typy kolumn i pustą bazę sprawdza `tests/test_database.py`.
-- `src/loglens/cli.py::inspect` → strumieniowo liczy poprawne i błędne zdarzenia w plikach katalogu; testy w `tests/test_cli.py` obejmują mieszane dane, pusty katalog oraz błędy ścieżki i kodowania.
-- `src/loglens/cli.py` → aplikacja Typer z poleceniem `loglens version` i punktem wejścia w `pyproject.toml`; wyjście i kod zakończenia sprawdza `tests/test_cli.py`.
+- `src/loglens/cli.py` → aplikacja Typer z punktem wejścia w `pyproject.toml` udostępnia `version` i `inspect`, które odpowiednio pokazują wersję oraz strumieniowo liczą poprawne i błędne zdarzenia w katalogu.
 - `src/loglens/clef.py::read_files` → leniwie odczytuje kolejne pliki w kolejności wejścia, zachowując źródła i numery linii oraz tryb obsługi błędów; testy dwóch próbek i przypadków brzegowych w `tests/test_reader.py`.
 - `src/loglens/discovery.py::find_log_files` → zwraca posortowane według nazw pliki `.clef` i `.json` bez podkatalogów, ignorując wielkość liter rozszerzeń; testy w `tests/test_discovery.py` obejmują też puste katalogi i błędne ścieżki.
 - `src/loglens/__init__.py` → publiczny pakiet `loglens` i jego wersja.

@@ -186,3 +186,36 @@ def trace(
         timestamp = event.timestamp.isoformat() if event.timestamp is not None else "-"
         message = event.message if event.message is not None else event.message_template
         typer.echo(f"{timestamp}\t{event.level}\t{message}")
+
+
+@app.command()
+def report(
+    directory: Annotated[
+        Path, typer.Argument(exists=True, file_okay=False, readable=True)
+    ],
+    since: Annotated[
+        str | None, typer.Option(help="Include events since a relative time, e.g. 2h.")
+    ] = None,
+    out: Annotated[
+        Path | None, typer.Option(dir_okay=False, help="Write Markdown to this file.")
+    ] = None,
+) -> None:
+    """Generate a Markdown report from a directory's CLEF logs."""
+    import duckdb
+
+    from loglens.database import create_schema, insert_events
+    from loglens.report import build_report, render_markdown
+
+    try:
+        paths = find_log_files(directory)
+        with duckdb.connect() as connection:
+            create_schema(connection)
+            insert_events(connection, read_files(paths, strict=False))
+            markdown = render_markdown(build_report(connection, since=since))
+        if out is not None:
+            out.write_text(markdown, encoding="utf-8")
+        else:
+            typer.echo(markdown, nl=False)
+    except (OSError, ValueError, duckdb.Error) as error:
+        typer.echo(f"Cannot generate report: {error}", err=True)
+        raise typer.Exit(code=1) from error
