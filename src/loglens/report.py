@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import csv
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from datetime import datetime
+from html import escape
 from io import StringIO
 from typing import TYPE_CHECKING
 
@@ -157,3 +158,58 @@ def render_csv(report: Report) -> str:
         for endpoint in report.endpoints
     )
     return output.getvalue()
+
+
+def _html_table(headers: tuple[str, ...], rows: Iterable[tuple[str, ...]]) -> list[str]:
+    header = "".join(f'<th scope="col">{escape(label)}</th>' for label in headers)
+    lines = ["<table>", f"<thead><tr>{header}</tr></thead>", "<tbody>"]
+    for row in rows:
+        cells = "".join(f"<td>{escape(value)}</td>" for value in row)
+        lines.append(f"<tr>{cells}</tr>")
+    lines.extend(["</tbody>", "</table>"])
+    return lines
+
+
+def render_html(report: Report) -> str:
+    """Render the event summary and endpoint metrics as a standalone HTML document."""
+    lines = [
+        "<!doctype html>",
+        '<html lang="en">',
+        "<head>",
+        '<meta charset="utf-8">',
+        "<title>LogLens report</title>",
+        "</head>",
+        "<body>",
+        "<h1>LogLens report</h1>",
+        "<h2>Summary</h2>",
+        f"<p>Total events: {report.total_events:d}</p>",
+    ]
+    if report.level_counts:
+        rows = ((level, str(count)) for level, count in report.level_counts)
+        lines.extend(_html_table(("Level", "Events"), rows))
+    else:
+        lines.append("<p>No events.</p>")
+
+    lines.append("<h2>Endpoints</h2>")
+    if report.endpoints:
+        endpoint_rows = []
+        for endpoint in report.endpoints:
+            percentiles = tuple(
+                "-" if value is None else f"{value:.2f}"
+                for value in (endpoint.p50_ms, endpoint.p95_ms, endpoint.p99_ms)
+            )
+            endpoint_rows.append((
+                endpoint.path,
+                str(endpoint.request_count),
+                f"{endpoint.error_rate:.2%}",
+                *percentiles,
+            ))
+        headers = (
+            "Endpoint", "Requests", "Error rate", "p50 (ms)", "p95 (ms)", "p99 (ms)"
+        )
+        lines.extend(_html_table(headers, endpoint_rows))
+    else:
+        lines.append("<p>No endpoint data.</p>")
+
+    lines.extend(["</body>", "</html>"])
+    return "\n".join(lines) + "\n"
