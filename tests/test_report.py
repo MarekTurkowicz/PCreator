@@ -12,6 +12,7 @@ from loglens.report import (
     Report,
     build_report,
     render_csv,
+    render_html,
     render_markdown,
 )
 
@@ -171,3 +172,37 @@ def test_render_csv_without_endpoints_outputs_only_headers():
     assert render_csv(report) == (
         "endpoint,request_count,error_rate,p50_ms,p95_ms,p99_ms\r\n"
     )
+
+
+def test_render_html_escapes_log_data_and_formats_metrics():
+    path = '/zażółć/<script>"x"</script>&copy;\'s'
+    report = Report(
+        total_events=3,
+        level_counts=(("<b>Error</b>", 1), ("Information", 2)),
+        endpoints=(EndpointStats(path, 3, 1 / 3, 0, 12.5, None),),
+        errors_by_time=(),
+        exception_groups=(),
+    )
+
+    html = render_html(report)
+
+    assert html.startswith("<!doctype html>\n")
+    assert '<meta charset="utf-8">' in html
+    assert "<p>Total events: 3</p>" in html
+    assert "<tr><td>&lt;b&gt;Error&lt;/b&gt;</td><td>1</td></tr>" in html
+    assert '<th scope="col">p95 (ms)</th>' in html
+    assert (
+        "<tr><td>/zażółć/&lt;script&gt;&quot;x&quot;&lt;/script&gt;&amp;copy;&#x27;s</td>"
+        "<td>3</td><td>33.33%</td><td>0.00</td><td>12.50</td><td>-</td></tr>"
+    ) in html
+    assert "<script>" not in html
+    assert "<b>Error</b>" not in html
+
+
+def test_render_html_describes_empty_data():
+    html = render_html(Report(0, (), (), (), ()))
+
+    assert "<p>Total events: 0</p>" in html
+    assert "<p>No events.</p>" in html
+    assert "<p>No endpoint data.</p>" in html
+    assert "<table>" not in html
