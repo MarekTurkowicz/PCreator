@@ -16,6 +16,7 @@
 - `src/loglens/database.py::count_requests_by_endpoint` → liczy żądania i udział zdarzeń Error/Fatal według niepustego `RequestPath` przez `sql/count_requests_by_endpoint.sql`; agregaty, puste dane i niepoprawne ścieżki sprawdza `tests/test_endpoint_counts.py`.
 - `src/loglens/http.py` → wyodrębnia `RequestPath` i `Elapsed` w milisekundach do `HttpDetails`; brakujące i niepoprawne pola oraz odczyt z CLEF sprawdza `tests/test_http.py`.
 - `src/loglens/database.py::count_errors_by_time` → agreguje datowane zdarzenia Error i Fatal w stałych przedziałach UTC zakotwiczonych w epoce Unix przez `sql/count_errors_by_time.sql`, a używane przez raport `fill_gaps=True` wstawia zera między pierwszym i ostatnim przedziałem z błędami i zwraca pusty szereg przy braku datowanych błędów.
+- `src/loglens/database.py::rolling_error_baseline` → dla każdego przedziału UTC zwraca liczbę błędów i średnią z dostępnych wcześniejszych przedziałów w zadanym oknie, uwzględniając luki jako zera i zwracając `None` przy braku historii.
 - `src/loglens/database.py::count_events_by_level` → liczy zdarzenia według poziomu przez `sql/count_events_by_level.sql`, zwracając pary poziom–liczność w kolejności alfabetycznej; agregaty i pustą bazę sprawdza `tests/test_level_counts.py`.
 - `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
@@ -30,9 +31,8 @@
 - `src/loglens/__init__.py` → publiczny pakiet `loglens` i jego wersja.
 - `src/loglens/models.py` → model `LogEvent` z wartościami domyślnymi, kontekstem i lokalizacją źródłową, sprawdzany w `tests/test_models.py`.
 - `src/loglens/clef.py` → odczyt pól `@t`, `@l`, `@mt` i `@m` z pojedynczej linii JSON do `LogEvent`, testowany w `tests/test_clef.py` na próbce `samples/basic.clef`.
-- `src/loglens/clef.py::parse_line` → normalizuje czas do UTC (także daty bez strefy), zachowuje brak czasu i odrzuca błędne daty; testy obejmują offsety i zmianę dnia.
+- `src/loglens/clef.py::parse_line` → normalizuje daty do UTC, zachowuje brak czasu i odrzuca błędne daty, a także zachowuje wyjątek `@x` i zagnieżdżony kontekst, pomijając metadane CLEF i odkodowując nazwy `@@`, co sprawdza `tests/test_clef.py`.
 - `src/loglens/clef.py::_normalize_level` → normalizuje sześć poziomów Serilog bez rozróżniania wielkości liter, domyślnie używa `Information` przy braku `@l` i odrzuca nieznane wartości; testy w `tests/test_clef.py`.
-- `src/loglens/clef.py::parse_line` → zachowuje wyjątek `@x` i zagnieżdżony kontekst, pomija metadane CLEF i odkodowuje nazwy `@@`; testy w `tests/test_clef.py`.
 - `src/loglens/clef.py::read_file` → czyta plik UTF-8 leniwie, przypisując zdarzeniom ścieżkę źródła i numer linii od 1; testy w `tests/test_reader.py`.
 - `src/loglens/clef.py::read_file(strict=False)` → pomija błędne linie z ostrzeżeniem zawierającym ścieżkę, numer linii i przyczynę; domyślny tryb ścisły i błędy plików nadal zgłaszają wyjątki, co sprawdza `tests/test_reader.py`.
 - `pyproject.toml` i `tests/test_smoke.py` → konfigurują pakiet, pytest i ruff oraz sprawdzają import i zgodność wersji z metadanymi.

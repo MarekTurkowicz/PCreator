@@ -146,6 +146,33 @@ def count_errors_by_time(
     return filled
 
 
+def rolling_error_baseline(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    window_size: int,
+    bucket_size: timedelta = timedelta(minutes=1),
+) -> list[tuple[datetime, int, float | None]]:
+    """Return (UTC bucket start, error count, mean of preceding counts).
+
+    The window contains up to window_size previous buckets, including zero
+    counts for gaps. Use the available history while the window fills and
+    return None for the first bucket. The caller owns the connection.
+    """
+    if window_size <= 0:
+        raise ValueError("window_size must be positive")
+    counts = count_errors_by_time(connection, bucket_size=bucket_size, fill_gaps=True)
+    result = []
+    window_total = 0
+    for index, (stamp, count) in enumerate(counts):
+        history_size = min(index, window_size)
+        baseline = window_total / history_size if history_size else None
+        result.append((stamp, count, baseline))
+        window_total += count
+        if index >= window_size:
+            window_total -= counts[index - window_size][1]
+    return result
+
+
 def filter_events(
     connection: duckdb.DuckDBPyConnection,
     *,
