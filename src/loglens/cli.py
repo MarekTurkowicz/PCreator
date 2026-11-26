@@ -1,5 +1,6 @@
 """Command-line entry point for LogLens."""
 
+from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
@@ -188,6 +189,12 @@ def trace(
         typer.echo(f"{timestamp}\t{event.level}\t{message}")
 
 
+class ReportFormat(str, Enum):
+    MARKDOWN = "markdown"
+    HTML = "html"
+    CSV = "csv"
+
+
 @app.command()
 def report(
     directory: Annotated[
@@ -197,25 +204,55 @@ def report(
         str | None, typer.Option(help="Include events since a relative time, e.g. 2h.")
     ] = None,
     out: Annotated[
-        Path | None, typer.Option(dir_okay=False, help="Write Markdown to this file.")
+        Path | None, typer.Option(dir_okay=False, help="Write the report to this file.")
+    ] = None,
+    output_format: Annotated[
+        ReportFormat | None,
+        typer.Option(
+            "--format",
+            case_sensitive=False,
+            help="Override the extension. Defaults to Markdown without an extension.",
+        ),
     ] = None,
 ) -> None:
-    """Generate a Markdown report from a directory's CLEF logs."""
+    """Generate a Markdown, HTML, or CSV report from a directory's CLEF logs."""
     import duckdb
 
     from loglens.database import create_schema, insert_events
-    from loglens.report import build_report, render_markdown
+    from loglens.report import build_report, render_csv, render_html, render_markdown
+
+    extension = out.suffix.lower() if out is not None else ""
+    if output_format is None:
+        output_format = {
+            "": ReportFormat.MARKDOWN,
+            ".md": ReportFormat.MARKDOWN,
+            ".markdown": ReportFormat.MARKDOWN,
+            ".html": ReportFormat.HTML,
+            ".htm": ReportFormat.HTML,
+            ".csv": ReportFormat.CSV,
+        }.get(extension)
+        if output_format is None:
+            raise typer.BadParameter(
+                f"Unsupported report extension {extension!r}. Specify --format.",
+                param_hint="--out",
+            )
+
+    render = {
+        ReportFormat.MARKDOWN: render_markdown,
+        ReportFormat.HTML: render_html,
+        ReportFormat.CSV: render_csv,
+    }[output_format]
 
     try:
         paths = find_log_files(directory)
         with duckdb.connect() as connection:
             create_schema(connection)
             insert_events(connection, read_files(paths, strict=False))
-            markdown = render_markdown(build_report(connection, since=since))
+            content = render(build_report(connection, since=since))
         if out is not None:
-            out.write_text(markdown, encoding="utf-8")
+            out.write_text(content, encoding="utf-8", newline="")
         else:
-            typer.echo(markdown, nl=False)
+            typer.echo(content, nl=False)
     except (OSError, ValueError, duckdb.Error) as error:
         typer.echo(f"Cannot generate report: {error}", err=True)
         raise typer.Exit(code=1) from error

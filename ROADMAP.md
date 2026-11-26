@@ -49,7 +49,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 43. Dodaj CLI report z --since i --out dla Markdown; przetestuj raport z katalogu próbek.
 - [x] 44. Eksportuj statystyki endpointów do CSV; przetestuj nagłówki i cytowanie wartości.
 - [x] 45. Renderuj raport HTML z escapowaniem treści; przetestuj dane zawierające HTML.
-- [ ] 46. Wybieraj format raportu przez CLI i rozszerzenie pliku; przetestuj poprawne i błędne formaty.
+- [x] 46. Wybieraj format raportu przez CLI i rozszerzenie pliku; przetestuj poprawne i błędne formaty.
 - [ ] 47. Wypełniaj brakujące przedziały szeregu czasowego zerami; przetestuj luki i pusty zakres.
 - [ ] 48. Obliczaj kroczącą bazę liczby błędów; przetestuj okno bez przyszłych danych.
 - [ ] 49. Wykrywaj skoki liczby błędów względem bazy; przetestuj próg i stały szereg.
