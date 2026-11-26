@@ -1,5 +1,5 @@
 # Mapa kodu
-- `src/loglens/cli.py::report` → `loglens report DIRECTORY [--since 2h] [--out PATH]` wczytuje CLEF do bazy w pamięci i generuje raport Markdown do pliku lub na stdout.
+- `src/loglens/cli.py::report` → `loglens report DIRECTORY [--since 2h] [--out PATH] [--format markdown|html|csv]` wczytuje CLEF do bazy w pamięci i generuje raport do pliku lub na stdout, wybierając format według `--format`, rozszerzenia (`.md`, `.markdown`, `.html`, `.htm`, `.csv`) albo domyślnego Markdown przy braku rozszerzenia.
 - `src/loglens/report.py` → łączy statystyki poziomów i endpointów, szereg błędów oraz ranking wyjątków dla wybranego zakresu, renderuje podsumowanie i tabelę endpointów przez `render_markdown` i `render_html` (z escapowaniem treści) oraz eksportuje statystyki endpointów przez `render_csv`.
 - `src/loglens/cli.py::trace` → `loglens trace DATABASE CORRELATION_ID` pokazuje czas UTC, poziom i komunikat zdarzeń w kolejności chronologicznej, korzystając z dokładnego dopasowania `CorrelationId` przez `database.py::find_events_by_correlation_id`.
 - `src/loglens/exceptions.py` → odczytuje typ i komunikat zewnętrznego wyjątku .NET, maskuje liczby i UUID, grupuje zdarzenia według sygnatury, a `rank_exception_groups` porządkuje grupy według liczności i podaje daty pierwszego i ostatniego wystąpienia, jeśli są dostępne.
