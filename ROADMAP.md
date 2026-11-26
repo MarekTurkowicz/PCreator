@@ -50,7 +50,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 44. Eksportuj statystyki endpointów do CSV; przetestuj nagłówki i cytowanie wartości.
 - [x] 45. Renderuj raport HTML z escapowaniem treści; przetestuj dane zawierające HTML.
 - [x] 46. Wybieraj format raportu przez CLI i rozszerzenie pliku; przetestuj poprawne i błędne formaty.
-- [ ] 47. Wypełniaj brakujące przedziały szeregu czasowego zerami; przetestuj luki i pusty zakres.
+- [x] 47. Wypełniaj brakujące przedziały szeregu czasowego zerami; przetestuj luki i pusty zakres.
 - [ ] 48. Obliczaj kroczącą bazę liczby błędów; przetestuj okno bez przyszłych danych.
 - [ ] 49. Wykrywaj skoki liczby błędów względem bazy; przetestuj próg i stały szereg.
 - [ ] 50. Wykrywaj wzrost p95 czasu odpowiedzi endpointu; przetestuj minimalną liczbę obserwacji.
