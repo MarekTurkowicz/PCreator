@@ -6,7 +6,12 @@ import pytest
 
 duckdb = pytest.importorskip("duckdb")
 
-from loglens.database import count_errors_by_time, create_schema, insert_events  # noqa: E402
+from loglens.database import (  # noqa: E402
+    count_errors_by_time,
+    create_schema,
+    insert_events,
+    rolling_error_baseline,
+)
 from loglens.models import LogEvent  # noqa: E402
 
 
@@ -102,3 +107,39 @@ def test_bucket_size_must_be_positive(size):
         create_schema(connection)
         with pytest.raises(ValueError, match="bucket_size must be positive"):
             count_errors_by_time(connection, bucket_size=size)
+
+
+def test_rolling_error_baseline_uses_only_previous_buckets_including_gaps():
+    first = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    step = timedelta(minutes=5)
+    counts = [2, 0, 8, 1, 4]
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        insert_events(connection, [
+            LogEvent(first + index * step, "Error")
+            for index, count in enumerate(counts)
+            for _ in range(count)
+        ])
+
+        result = rolling_error_baseline(connection, window_size=2, bucket_size=step)
+
+    assert result == [
+        (first, 2, None),
+        (first + step, 0, 2.0),
+        (first + 2 * step, 8, 1.0),
+        (first + 3 * step, 1, 4.0),
+        (first + 4 * step, 4, 4.5),
+    ]
+
+
+def test_rolling_error_baseline_returns_empty_series_without_dated_errors():
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        assert rolling_error_baseline(connection, window_size=2) == []
+
+
+@pytest.mark.parametrize("window_size", [0, -1])
+def test_rolling_error_baseline_requires_positive_window(window_size):
+    with duckdb.connect() as connection:
+        with pytest.raises(ValueError, match="window_size must be positive"):
+            rolling_error_baseline(connection, window_size=window_size)
