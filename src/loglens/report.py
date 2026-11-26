@@ -51,8 +51,9 @@ def build_report(
 ) -> Report:
     """Summarize an inclusive range, using the time semantics of filter_events.
 
-    Error counts use one-minute UTC buckets. A bounded selection is copied
-    to a private in-memory database so all aggregates use the same events.
+    Error counts use one-minute UTC buckets with zeros between error buckets.
+    A bounded selection is copied to a private in-memory database so all
+    aggregates use the same events.
     """
     import duckdb
 
@@ -95,7 +96,7 @@ def _summarize(
         total_events=sum(count for _, count in level_counts),
         level_counts=level_counts,
         endpoints=endpoints,
-        errors_by_time=tuple(count_errors_by_time(connection)),
+        errors_by_time=tuple(count_errors_by_time(connection, fill_gaps=True)),
         exception_groups=exception_groups,
     )
 

@@ -59,6 +59,43 @@ def test_default_minute_buckets_omit_gaps_and_non_errors():
         ]
 
 
+def test_fill_gaps_uses_fixed_utc_buckets_across_a_clock_change():
+    first = datetime(2025, 3, 9, 6, 30, tzinfo=timezone.utc)
+    step = timedelta(minutes=30)
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        connection.execute("SET TimeZone = 'America/New_York'")
+        insert_events(connection, [
+            LogEvent(first - step, "Warning"),
+            LogEvent(first + timedelta(seconds=1), "Error"),
+            LogEvent(first + step, "Warning"),
+            LogEvent(first + 3 * step, "Fatal"),
+            LogEvent(first + 4 * step, "Warning"),
+        ])
+
+        result = count_errors_by_time(connection, bucket_size=step, fill_gaps=True)
+
+    assert result == [
+        (first, 1),
+        (first + step, 0),
+        (first + 2 * step, 0),
+        (first + 3 * step, 1),
+    ]
+    assert all(stamp.tzinfo is timezone.utc for stamp, _ in result)
+
+
+def test_fill_gaps_returns_empty_series_without_dated_errors():
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        assert count_errors_by_time(connection, fill_gaps=True) == []
+
+        insert_events(connection, [
+            LogEvent(datetime(2025, 1, 1, tzinfo=timezone.utc), "Warning"),
+            LogEvent(level="Error"),
+        ])
+        assert count_errors_by_time(connection, fill_gaps=True) == []
+
+
 @pytest.mark.parametrize("size", [timedelta(0), timedelta(seconds=-1)])
 def test_bucket_size_must_be_positive(size):
     with duckdb.connect() as connection:

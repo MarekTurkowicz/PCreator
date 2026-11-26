@@ -74,7 +74,13 @@ def test_build_report_combines_statistics_for_inclusive_bounds(report_data):
     (group,) = report.exception_groups
     assert group.signature == ("System.InvalidOperationException", "Request failed")
     assert (group.count, group.first_seen, group.last_seen) == (1, end, end)
-    assert build_report(connection).total_events == 7
+    full_report = build_report(connection)
+    assert full_report.total_events == 7
+    assert full_report.errors_by_time == (
+        (start - timedelta(minutes=1), 1),
+        (start, 0),
+        (end, 3),
+    )
 
 
 def test_build_report_for_empty_range(report_data):

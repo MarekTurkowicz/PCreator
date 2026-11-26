@@ -117,13 +117,15 @@ def count_errors_by_time(
     connection: duckdb.DuckDBPyConnection,
     *,
     bucket_size: timedelta = timedelta(minutes=1),
+    fill_gaps: bool = False,
 ) -> list[tuple[datetime, int]]:
     """Count dated Error and Fatal events in fixed, positive time buckets.
 
     Buckets are anchored at the Unix epoch in UTC and include their start,
-    excluding their end. Return UTC bucket starts in chronological order;
-    empty buckets and events without timestamps are omitted. The caller owns
-    the connection. The default bucket duration is one minute.
+    excluding their end. Return UTC bucket starts in chronological order.
+    With fill_gaps, include zero counts between the first and last error
+    buckets. A range without dated errors returns an empty list. The caller
+    owns the connection. The default bucket duration is one minute.
     """
     if bucket_size <= timedelta(0):
         raise ValueError("bucket_size must be positive")
@@ -131,7 +133,17 @@ def count_errors_by_time(
         encoding="utf-8"
     )
     rows = connection.execute(query, [bucket_size]).fetchall()
-    return [(stamp.astimezone(timezone.utc), count) for stamp, count in rows]
+    counts = [(stamp.astimezone(timezone.utc), count) for stamp, count in rows]
+    if not fill_gaps or not counts:
+        return counts
+
+    first, last = counts[0][0], counts[-1][0]
+    counts_by_start = dict(counts)
+    filled = []
+    for index in range((last - first) // bucket_size + 1):
+        stamp = first + index * bucket_size
+        filled.append((stamp, counts_by_start.get(stamp, 0)))
+    return filled
 
 
 def filter_events(
