@@ -9,6 +9,7 @@ duckdb = pytest.importorskip("duckdb")
 from loglens.database import (  # noqa: E402
     count_errors_by_time,
     create_schema,
+    detect_error_spikes,
     insert_events,
     rolling_error_baseline,
 )
@@ -143,3 +144,54 @@ def test_rolling_error_baseline_requires_positive_window(window_size):
     with duckdb.connect() as connection:
         with pytest.raises(ValueError, match="window_size must be positive"):
             rolling_error_baseline(connection, window_size=window_size)
+
+
+@pytest.mark.parametrize(
+    ("counts", "expected"),
+    [
+        ([2, 3, 6], [(2, 6, 3.0)]),
+        ([4, 4, 4], []),
+        ([2, 0, 0, 1], [(3, 1, 0.0)]),
+        ([], []),
+    ],
+)
+def test_detect_error_spikes(counts, expected):
+    first = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    step = timedelta(minutes=5)
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        insert_events(connection, [
+            LogEvent(first + index * step, "Error")
+            for index, count in enumerate(counts)
+            for _ in range(count)
+        ])
+
+        result = detect_error_spikes(connection, window_size=1, bucket_size=step)
+
+    assert result == [
+        (first + index * step, count, mean) for index, count, mean in expected
+    ]
+
+
+def test_detect_error_spikes_uses_custom_threshold_and_window():
+    first = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    minute = timedelta(minutes=1)
+    with duckdb.connect() as connection:
+        create_schema(connection)
+        insert_events(connection, [
+            LogEvent(first + index * minute, "Error")
+            for index, count in enumerate([4, 2, 5])
+            for _ in range(count)
+        ])
+
+        assert detect_error_spikes(connection, window_size=2, multiplier=1.5) == [
+            (first + 2 * minute, 5, 3.0),
+        ]
+        assert detect_error_spikes(connection, window_size=2) == []
+
+
+@pytest.mark.parametrize("multiplier", [0.5, 1, float("nan"), float("inf")])
+def test_detect_error_spikes_requires_finite_multiplier_above_one(multiplier):
+    with duckdb.connect() as connection:
+        with pytest.raises(ValueError, match="multiplier must be finite"):
+            detect_error_spikes(connection, window_size=2, multiplier=multiplier)
