@@ -1,6 +1,7 @@
 """Store normalized log events in DuckDB."""
 
 import json
+import math
 import re
 from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
@@ -171,6 +172,31 @@ def rolling_error_baseline(
         if index >= window_size:
             window_total -= counts[index - window_size][1]
     return result
+
+
+def detect_error_spikes(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    window_size: int,
+    bucket_size: timedelta = timedelta(minutes=1),
+    multiplier: float = 2.0,
+) -> list[tuple[datetime, int, float]]:
+    """Return (UTC bucket start, error count, baseline) for each spike.
+
+    A positive count at or above multiplier times the baseline is a spike.
+    A zero baseline makes any positive count a spike. Skip the first bucket
+    because it has no preceding history.
+    """
+    if not math.isfinite(multiplier) or multiplier <= 1:
+        raise ValueError("multiplier must be finite and greater than 1")
+
+    return [
+        (stamp, count, baseline)
+        for stamp, count, baseline in rolling_error_baseline(
+            connection, window_size=window_size, bucket_size=bucket_size
+        )
+        if baseline is not None and count > 0 and count >= baseline * multiplier
+    ]
 
 
 def filter_events(

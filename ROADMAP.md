@@ -52,7 +52,7 @@ CLEF i nigdy nie wymagają uruchamiania .NET.
 - [x] 46. Wybieraj format raportu przez CLI i rozszerzenie pliku; przetestuj poprawne i błędne formaty.
 - [x] 47. Wypełniaj brakujące przedziały szeregu czasowego zerami; przetestuj luki i pusty zakres.
 - [x] 48. Obliczaj kroczącą bazę liczby błędów; przetestuj okno bez przyszłych danych.
-- [ ] 49. Wykrywaj skoki liczby błędów względem bazy; przetestuj próg i stały szereg.
+- [x] 49. Wykrywaj skoki liczby błędów względem bazy; przetestuj próg i stały szereg.
 - [ ] 50. Wykrywaj wzrost p95 czasu odpowiedzi endpointu; przetestuj minimalną liczbę obserwacji.
 - [ ] 51. Dodaj CLI anomalies prezentujące wykryte przedziały; przetestuj stabilny i anomalny przebieg.
 - [ ] 52. Dołącz anomalie do raportów Markdown i HTML; przetestuj raport bez anomalii.
