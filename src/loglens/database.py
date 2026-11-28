@@ -3,10 +3,13 @@
 import json
 import math
 import re
+from collections import deque
 from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime, timedelta, timezone
 from importlib.resources import files
+from itertools import groupby
 from pathlib import Path
+from statistics import mean
 from typing import TYPE_CHECKING
 
 import duckdb
@@ -197,6 +200,50 @@ def detect_error_spikes(
         )
         if baseline is not None and count > 0 and count >= baseline * multiplier
     ]
+
+
+def detect_response_time_spikes(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    window_size: int,
+    bucket_size: timedelta = timedelta(minutes=1),
+    min_observations: int = 5,
+    multiplier: float = 2.0,
+) -> list[tuple[datetime, str, float, float]]:
+    """Return (UTC bucket start, endpoint, p95 in ms, baseline in ms).
+
+    Only buckets with at least min_observations valid durations qualify.
+    The baseline is the mean of qualified p95 values from the previous
+    window_size time buckets for the same endpoint. Flag a positive p95
+    at or above multiplier times that baseline. Skip buckets without history.
+    Results are ordered by bucket start and endpoint.
+    """
+    if window_size <= 0:
+        raise ValueError("window_size must be positive")
+    if bucket_size <= timedelta(0):
+        raise ValueError("bucket_size must be positive")
+    if min_observations <= 0:
+        raise ValueError("min_observations must be positive")
+    if not math.isfinite(multiplier) or multiplier <= 1:
+        raise ValueError("multiplier must be finite and greater than 1")
+
+    query = files("loglens").joinpath("sql/response_time_p95_by_bucket.sql").read_text(
+        encoding="utf-8"
+    )
+    buckets = connection.execute(query, [bucket_size, min_observations]).fetchall()
+    spikes = []
+    for endpoint, endpoint_buckets in groupby(buckets, key=lambda row: row[0]):
+        history: deque[tuple[datetime, float]] = deque()
+        for _, stamp, p95 in endpoint_buckets:
+            stamp = stamp.astimezone(timezone.utc)
+            while history and (stamp - history[0][0]) // bucket_size > window_size:
+                history.popleft()
+            if history:
+                baseline = mean(value for _, value in history)
+                if p95 > 0 and p95 >= baseline * multiplier:
+                    spikes.append((stamp, endpoint, p95, baseline))
+            history.append((stamp, p95))
+    return sorted(spikes)
 
 
 def filter_events(

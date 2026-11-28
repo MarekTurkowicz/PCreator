@@ -17,6 +17,7 @@
 - `src/loglens/http.py` → wyodrębnia `RequestPath` i `Elapsed` w milisekundach do `HttpDetails`; brakujące i niepoprawne pola oraz odczyt z CLEF sprawdza `tests/test_http.py`.
 - `src/loglens/database.py::count_errors_by_time` → agreguje datowane zdarzenia Error i Fatal w stałych przedziałach UTC zakotwiczonych w epoce Unix przez `sql/count_errors_by_time.sql`, a używane przez raport `fill_gaps=True` wstawia zera między pierwszym i ostatnim przedziałem z błędami i zwraca pusty szereg przy braku datowanych błędów.
 - `src/loglens/database.py::rolling_error_baseline` i `detect_error_spikes` → baza to średnia z wcześniejszych przedziałów UTC (luki liczą się jako zera, brak historii pomija detektor), a skok to dodatnia liczba błędów osiągająca ustaloną wielokrotność bazy (domyślnie 2×).
+- `src/loglens/database.py::detect_response_time_spikes` → wykrywa dodatnie p95 czasu odpowiedzi osiągające ustaloną wielokrotność średniej wcześniejszych p95 tego samego endpointu (domyślnie 2×), uwzględniając wyłącznie przedziały UTC z wymaganą liczbą poprawnych pomiarów (domyślnie 5).
 - `src/loglens/database.py::count_events_by_level` → liczy zdarzenia według poziomu przez `sql/count_events_by_level.sql`, zwracając pary poziom–liczność w kolejności alfabetycznej; agregaty i pustą bazę sprawdza `tests/test_level_counts.py`.
 - `src/loglens/database.py::filter_events(context_key=..., context_value=...)` → filtruje po dosłownej nazwie właściwości kontekstu i wartości JSON; typy, brak pola, null, znaki specjalne i łączenie filtrów sprawdza `tests/test_database_filters.py`.
 - `src/loglens/database.py::filter_events(min_level=...)` → filtruje po minimalnym poziomie Serilog bez rozróżniania wielkości liter; kolejność sześciu poziomów, walidację i łączenie z czasem sprawdza `tests/test_database_filters.py`.
@@ -36,5 +37,4 @@
 - `src/loglens/clef.py::read_file` → czyta plik UTF-8 leniwie, przypisując zdarzeniom ścieżkę źródła i numer linii od 1; testy w `tests/test_reader.py`.
 - `src/loglens/clef.py::read_file(strict=False)` → pomija błędne linie z ostrzeżeniem zawierającym ścieżkę, numer linii i przyczynę; domyślny tryb ścisły i błędy plików nadal zgłaszają wyjątki, co sprawdza `tests/test_reader.py`.
 - `pyproject.toml` i `tests/test_smoke.py` → konfigurują pakiet, pytest i ruff oraz sprawdzają import i zgodność wersji z metadanymi.
-- `README.md` → opis projektu oraz instrukcje instalacji, uruchomienia i sprawdzeń.
-- `TOPIC.md` → zakres docelowych analiz CLEF, generatora .NET i raportów.
+- `README.md` i `TOPIC.md` → opisują zakres projektu, instalację, uruchomienie i sprawdzenia.
